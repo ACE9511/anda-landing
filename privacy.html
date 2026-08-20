@@ -9,10 +9,25 @@
   h1 { color: #12857C; } h2 { color: #0E5952; margin-top: 28px; }
   .lang { border-top: 2px solid #DCF2F0; margin-top: 40px; padding-top: 8px; }
   small { color: #666; }
+  .idiomas { position: sticky; top: 0; z-index: 5; display: flex; justify-content: flex-end;
+             gap: 0; padding: 10px 0 6px; background: #fff; }
+  .idiomas button { font: inherit; font-size: 13px; font-weight: 600; cursor: pointer;
+                    color: #0E5952; background: #fff; border: 1px solid #BBBAAB;
+                    padding: 6px 14px; }
+  .idiomas button:first-child { border-radius: 999px 0 0 999px; }
+  .idiomas button:last-child { border-radius: 0 999px 999px 0; border-left: none; }
+  .idiomas button[aria-pressed="true"] { background: #DCF2F0; border-color: #12857C; color: #0A4A44; }
+  .idiomas button:focus-visible { outline: 2px solid #12857C; outline-offset: 2px; }
+
 </style>
 </head>
 <body>
 
+<div class="idiomas" id="idiomas" hidden>
+  <button type="button" data-lang="es">Español</button><button type="button" data-lang="en">English</button>
+</div>
+
+<div id="doc-en">
 <h1>ANDA — Privacy Policy</h1>
 <p><small>Effective date: August 17, 2026 (updated: card transactions and crash diagnostics added to "What we collect") · ANDA is operated by Disode LLC, a Florida limited liability company ("we", "us").</small></p>
 
@@ -42,8 +57,9 @@
 
 <h2>7. Contact</h2>
 <p>Questions or requests: <b>anda.env@gmail.com</b></p>
+</div>
 
-<div class="lang">
+<div id="doc-es">
 <h1>ANDA — Política de Privacidad</h1>
 <p><small>Fecha de vigencia: 17 de agosto de 2026 (actualización: se añadieron los movimientos de tarjeta y el diagnóstico de cierres a "Qué recopilamos") · ANDA es operada por Disode LLC, una LLC de Florida ("nosotros").</small></p>
 
@@ -74,6 +90,44 @@
 <h2>7. Contacto</h2>
 <p>Preguntas o solicitudes: <b>anda.env@gmail.com</b></p>
 </div>
+
+<script>
+(function () {
+  // Sin JS no se toca nada: se ven los dos idiomas, como siempre.
+  var caja = document.getElementById('idiomas');
+  var bloques = { es: document.getElementById('doc-es'), en: document.getElementById('doc-en') };
+  if (!caja || !bloques.es || !bloques.en) return;
+  caja.hidden = false;
+
+  function elegir(l, recordar) {
+    if (l !== 'es' && l !== 'en') l = 'es';
+    bloques.es.hidden = (l !== 'es');
+    bloques.en.hidden = (l !== 'en');
+    document.documentElement.lang = l;
+    var bs = caja.querySelectorAll('button');
+    for (var i = 0; i < bs.length; i++) {
+      bs[i].setAttribute('aria-pressed', String(bs[i].getAttribute('data-lang') === l));
+    }
+    if (recordar) {
+      try { history.replaceState(null, '', '#' + l); } catch (e) { location.hash = l; }
+    }
+  }
+
+  // 1) lo que pida el enlace (#es / #en) — la app manda aquí el idioma del
+  //    usuario; 2) el del navegador; 3) español, que es el de la mayoría.
+  var h = (location.hash || '').replace('#', '').toLowerCase();
+  var nav = (navigator.language || 'es').slice(0, 2).toLowerCase();
+  elegir(h === 'es' || h === 'en' ? h : (nav === 'en' ? 'en' : 'es'), false);
+
+  caja.addEventListener('click', function (ev) {
+    var b = ev.target.closest('button[data-lang]');
+    if (b) elegir(b.getAttribute('data-lang'), true);
+  });
+  window.addEventListener('hashchange', function () {
+    elegir((location.hash || '').replace('#', '').toLowerCase(), false);
+  });
+})();
+</script>
 
 </body>
 </html>
