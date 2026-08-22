@@ -29,66 +29,104 @@
 
 <div id="doc-en">
 <h1>ANDA — Privacy Policy</h1>
-<p><small>Effective date: August 17, 2026 (updated: card transactions and crash diagnostics added to "What we collect") · ANDA is operated by Disode LLC, a Florida limited liability company ("we", "us").</small></p>
+<p><small>Effective date: August 21, 2026 (update: we now name every provider that receives your data — including app updates — the spending category we store, and exactly what "deletion" means) · ANDA is operated by Disode LLC, a Florida limited liability company ("we", "us").</small></p>
 
 <h2>1. What we collect</h2>
 <ul>
   <li><b>Account data:</b> your email address and the name you choose to display.</li>
-  <li><b>Financial data (read-only):</b> if you choose to connect your bank through <b>Plaid</b>, we receive your credit card liabilities — balances, APRs, minimum payments and statement dates. We never receive or store your bank username or password; those are handled directly by Plaid. See <a href="https://plaid.com/legal/#end-user-privacy-policy">Plaid's End User Privacy Policy</a>.</li>
-  <li><b>Card transactions (read-only):</b> for the cards you connect, we also receive and store the transactions on those cards — amount, date, the description your bank sends, and the merchant name when your bank provides it. We use them to verify that your payments actually reached your card and to show your history. We do not use them for advertising or profiling, and we never sell them.</li>
+  <li><b>Card data (read-only):</b> if you choose to connect your bank through <b>Plaid</b>, we receive and store, for each credit card: the bank's name, the card's name and last four digits, the balance, the credit limit, the APR, the minimum payment, the statement date and balance, the payment due date, and the date and amount of the last payment your issuer reports. We never receive or store your bank username or password; those are handled directly by Plaid. See <a href="https://plaid.com/legal/#end-user-privacy-policy">Plaid's End User Privacy Policy</a>.</li>
+  <li><b>Card transactions (read-only):</b> for the cards you connect we request <b>up to 90 days of history</b> and keep receiving new transactions while the connection is active. For each one we store the amount, the date and time, the description your bank sends (both the cleaned-up and the original one), the merchant or counterparty when your bank provides it, whether it is still pending, and <b>the spending category Plaid assigns</b>.
+  <br><b>Be aware of what that category can reveal.</b> Plaid's categories include <i>Medical</i>, <i>Personal care</i>, <i>Travel</i>, <i>Rent and utilities</i>, <i>Entertainment</i> and <i>Income</i>, so your transactions can suggest health, habits, income or where you go. We use them only to tell a payment apart from a purchase, to verify that your payments reached your card, and to show your history. <b>We do not use them for advertising or profiling, and we never sell them.</b></li>
   <li><b>App activity:</b> your plan settings (monthly budget, strategy) and your plan streak.</li>
-  <li><b>Diagnostics:</b> if the app closes unexpectedly, we store the technical details of the error (message and stack trace), your device model, your Android/iOS and app versions and the app update identifier, linked to your account when you are signed in, so we can fix it. We do not include your balances or transactions in these reports.</li>
+  <li><b>Notification token:</b> if you enable reminders, we store the push token your phone gives us. It identifies your device, not you.</li>
+  <li><b>Diagnostics:</b> if the app closes unexpectedly, we store the technical details of the error (message and stack trace), your Android/iOS and app versions, the app update identifier and <b>the name your phone reports</b> — note that many phones are named after their owner (for example "Ana's iPhone"), so that name may contain yours. It is linked to your account when you are signed in. We do not include your balances or transactions in these reports.</li>
 </ul>
 
-<h2>2. How we use it</h2>
-<p>Only to provide the service: build your personalized payoff plan, show your progress, and send the reminders you enable. We do <b>not</b> sell your data, and we do not share it with third parties except the service providers that make the app work (Plaid for bank connectivity, Supabase for secure data hosting, Brevo for transactional email).</p>
+<h2>2. How we use it, and who else sees it</h2>
+<p>We use your data only to provide the service: build your personalized payoff plan, show your progress, verify your payments, and send the reminders you enable. <b>We do not sell your data</b> and we do not share it for advertising.</p>
+<p>These providers process data on our behalf:</p>
+<ul>
+  <li><b>Plaid</b> — the bank connection and the card data above.</li>
+  <li><b>Supabase</b> — hosting of our database and accounts (servers in the United States).</li>
+  <li><b>Brevo</b> — the transactional emails that carry your sign-in code.</li>
+  <li><b>Expo</b> — also delivers <b>app updates</b>: your phone asks it whether a new version exists on launch, when you return to the app and every 15 minutes, and that check carries your OS, the installed version and an install identifier. It happens even if you never connect a bank, and on the sign-in screen too.</li>
+  <li><b>Expo and Google (Firebase Cloud Messaging)</b> — delivery of push notifications. <b>The text of the notification passes through them</b>, and that text can name a card, an amount and a merchant (for example: "Visa ···1234: you spent $24.50 · At Corner Store"). You can turn them off in your phone's settings and you will stop seeing them; the notification is still generated and still passes through Expo and Google until you delete your account.</li>
+  <li><b>RevenueCat</b> — subscription management. It receives your ANDA user identifier and the status of your purchase, never your bank data.</li>
+  <li><b>Google Play</b> — payment processing for the subscription. We never see your card number.</li>
+</ul>
 
 <h2>3. Security</h2>
-<p>All traffic is encrypted in transit (TLS 1.2+). Bank access tokens are encrypted at the application level with AES-256-GCM, with keys stored outside the database. Our database is encrypted at rest. Access to production data follows least-privilege principles, and administrative accounts require multi-factor authentication.</p>
+<p>All traffic is encrypted in transit (TLS 1.2+). Bank access tokens are encrypted at the application level with AES-256-GCM, with keys stored outside the database. Our database is encrypted at rest, and every table isolates each user's rows at the database level. Access to production data follows least-privilege principles, and administrative accounts require multi-factor authentication.</p>
+<p>To be clear about what we have <b>not</b> done: ANDA has not undergone an independent security audit such as SOC 2, nor an external penetration test. We passed the security review Plaid requires to grant production access.</p>
 
 <h2>4. Data retention and deletion</h2>
-<p>We keep your data only while your account exists. You can delete your account at any time from <b>Settings → Delete account</b> inside the app: this permanently deletes your profile, debts, bank connections, and activity, and revokes bank access. You may also email us to request deletion.</p>
+<ul>
+  <li><b>While your account exists</b> we keep the data described above so the app can work.</li>
+  <li><b>Crash reports are deleted after 90 days</b>, automatically, even if your account is still active.</li>
+  <li><b>When you delete your account</b> (Settings → Delete account) we delete your profile, debts, bank connections, transactions, streak, notification tokens and crash reports from our database, and we revoke ANDA's bank access with Plaid. The deletion is immediate: there is no trash bin and no grace period.</li>
+  <li><b>Backups:</b> we do not keep long-term backups of the database, so there is no copy of your data waiting somewhere after you delete it. If this ever changes, we will say so here and state for how long.</li>
+  <li>Deleting your account in ANDA does not delete the data Plaid holds under its own policy. You can review and revoke your connections at <a href="https://my.plaid.com">my.plaid.com</a>.</li>
+</ul>
 
 <h2>5. Your rights</h2>
 <p>You may access, correct, or delete your personal information at any time from the app, or by contacting us. We respond to verified requests within 30 days.</p>
 
 <h2>6. Not financial advice</h2>
-<p>ANDA is a planning tool. It does not provide financial, legal, or tax advice, and it does not move money in the current version.</p>
+<p>ANDA is a planning tool. It does not provide financial, legal, or tax advice, and it does not move money: you pay your issuer yourself, from your own bank. A payment marked as "verified" means we saw a matching transaction arrive on your card — it is not a confirmation from your issuer. Always confirm important payments with your bank.</p>
 
 <h2>7. Contact</h2>
-<p>Questions or requests: <b>anda.env@gmail.com</b></p>
+<p>Questions or requests: <b>hola@anda.finance</b></p>
 </div>
 
 <div id="doc-es">
 <h1>ANDA — Política de Privacidad</h1>
-<p><small>Fecha de vigencia: 17 de agosto de 2026 (actualización: se añadieron los movimientos de tarjeta y el diagnóstico de cierres a "Qué recopilamos") · ANDA es operada por Disode LLC, una LLC de Florida ("nosotros").</small></p>
+<p><small>Fecha de vigencia: 21 de agosto de 2026 (actualización: ahora se nombra a cada proveedor que recibe tus datos — incluidas las actualizaciones de la app —, la categoría de gasto que guardamos y qué significa exactamente "borrar") · ANDA es operada por Disode LLC, una LLC de Florida ("nosotros").</small></p>
 
 <h2>1. Qué recolectamos</h2>
 <ul>
   <li><b>Datos de cuenta:</b> tu correo electrónico y el nombre que eliges mostrar.</li>
-  <li><b>Datos financieros (solo lectura):</b> si decides conectar tu banco a través de <b>Plaid</b>, recibimos tus tarjetas de crédito — balances, APRs, pagos mínimos y fechas de corte. Nunca recibimos ni guardamos tu usuario o contraseña bancaria; eso lo maneja directamente Plaid. Consulta la <a href="https://plaid.com/legal/#end-user-privacy-policy">Política de Privacidad de Plaid</a>.</li>
-  <li><b>Movimientos de tus tarjetas (solo lectura):</b> de las tarjetas que conectes también recibimos y guardamos sus movimientos — el monto, la fecha, la descripción que manda tu banco y el nombre del comercio cuando tu banco lo da. Los usamos para verificar que tus pagos llegaron de verdad a tu tarjeta y para mostrarte tu historial. No los usamos para publicidad ni para perfilarte, y nunca los vendemos.</li>
+  <li><b>Datos de tus tarjetas (solo lectura):</b> si decides conectar tu banco a través de <b>Plaid</b>, recibimos y guardamos, de cada tarjeta de crédito: el nombre del banco, el nombre de la tarjeta y sus últimos cuatro dígitos, el balance, el límite de crédito, el APR, el pago mínimo, la fecha y el saldo del estado de cuenta, la fecha de vencimiento, y la fecha y el monto del último pago que reporta tu emisor. Nunca recibimos ni guardamos tu usuario o contraseña bancaria; eso lo maneja directamente Plaid. Consulta la <a href="https://plaid.com/legal/#end-user-privacy-policy">Política de Privacidad de Plaid</a>.</li>
+  <li><b>Movimientos de tus tarjetas (solo lectura):</b> de las tarjetas que conectes pedimos <b>hasta 90 días de historial</b> y seguimos recibiendo los movimientos nuevos mientras la conexión esté activa. De cada uno guardamos el monto, la fecha y la hora, la descripción que manda tu banco (la limpia y la original), el comercio o la contraparte cuando tu banco lo da, si todavía está pendiente y <b>la categoría de gasto que le asigna Plaid</b>.
+  <br><b>Que sepas lo que esa categoría puede revelar.</b> Las categorías de Plaid incluyen <i>Médico</i>, <i>Cuidado personal</i>, <i>Viajes</i>, <i>Renta y servicios</i>, <i>Entretenimiento</i> e <i>Ingresos</i>, así que tus movimientos pueden sugerir salud, hábitos, ingresos o por dónde te mueves. Los usamos solo para distinguir un pago de una compra, verificar que tus pagos llegaron a tu tarjeta y mostrarte tu historial. <b>No los usamos para publicidad ni para perfilarte, y nunca los vendemos.</b></li>
   <li><b>Actividad en la app:</b> la configuración de tu plan (presupuesto mensual, estrategia) y tu racha de plan.</li>
-  <li><b>Diagnóstico:</b> si la app se cierra sola, guardamos los detalles técnicos del error (mensaje y traza), el modelo de tu teléfono, las versiones de Android/iOS y de la app y el identificador de la actualización, vinculados a tu cuenta si tienes sesión, para poder arreglarlo. En estos reportes no incluimos tus balances ni tus movimientos.</li>
+  <li><b>Token de notificaciones:</b> si activas los recordatorios, guardamos el token que nos da tu teléfono. Identifica a tu aparato, no a ti.</li>
+  <li><b>Diagnóstico:</b> si la app se cierra sola, guardamos los detalles técnicos del error (mensaje y traza), las versiones de Android/iOS y de la app, el identificador de la actualización y <b>el nombre que reporta tu teléfono</b> — ojo: muchos teléfonos llevan el nombre de su dueño (por ejemplo "iPhone de Ana"), así que ese nombre puede contener el tuyo. Va vinculado a tu cuenta si tienes sesión. En estos reportes no incluimos tus balances ni tus movimientos.</li>
 </ul>
 
-<h2>2. Cómo la usamos</h2>
-<p>Solo para darte el servicio: armar tu plan personalizado, mostrar tu progreso y enviarte los recordatorios que actives. <b>No vendemos tus datos</b> ni los compartimos con terceros, excepto los proveedores que hacen funcionar la app (Plaid para conexión bancaria, Supabase para alojamiento seguro de datos, Brevo para correos transaccionales).</p>
+<h2>2. Cómo la usamos, y quién más la ve</h2>
+<p>Usamos tus datos solo para darte el servicio: armar tu plan personalizado, mostrar tu progreso, verificar tus pagos y enviarte los recordatorios que actives. <b>No vendemos tus datos</b> ni los compartimos para publicidad.</p>
+<p>Estos proveedores procesan datos por encargo nuestro:</p>
+<ul>
+  <li><b>Plaid</b> — la conexión con tu banco y los datos de tarjeta de arriba.</li>
+  <li><b>Supabase</b> — alojamiento de nuestra base de datos y de las cuentas (servidores en Estados Unidos).</li>
+  <li><b>Brevo</b> — los correos que llevan tu código de acceso.</li>
+  <li><b>Expo</b> — también entrega las <b>actualizaciones de la app</b>: tu teléfono le pregunta si hay versión nueva al abrir, al volver al frente y cada 15 minutos, y en esa consulta van tu sistema, la versión instalada y un identificador de la instalación. Ocurre aunque nunca conectes un banco, y también en la pantalla de acceso.</li>
+  <li><b>Expo y Google (Firebase Cloud Messaging)</b> — la entrega de las notificaciones. <b>El texto del aviso pasa por ellos</b>, y ese texto puede nombrar una tarjeta, un monto y un comercio (por ejemplo: "Visa ···1234: gastaste $24.50 · En Tienda del barrio"). Puedes apagarlas en los ajustes de tu teléfono y dejarás de verlas; el aviso se sigue generando y pasando por Expo y Google hasta que borres tu cuenta.</li>
+  <li><b>RevenueCat</b> — gestión de la suscripción. Recibe tu identificador de usuario en ANDA y el estado de tu compra, nunca tus datos bancarios.</li>
+  <li><b>Google Play</b> — el cobro de la suscripción. Nosotros nunca vemos el número de tu tarjeta.</li>
+</ul>
 
 <h2>3. Seguridad</h2>
-<p>Todo el tráfico va cifrado en tránsito (TLS 1.2+). Los tokens de acceso bancario se cifran a nivel de aplicación con AES-256-GCM, con llaves guardadas fuera de la base de datos. La base de datos está cifrada en reposo. El acceso a datos sigue el principio de menor privilegio y las cuentas administrativas requieren autenticación multifactor.</p>
+<p>Todo el tráfico va cifrado en tránsito (TLS 1.2+). Los tokens de acceso bancario se cifran a nivel de aplicación con AES-256-GCM, con llaves guardadas fuera de la base de datos. La base de datos está cifrada en reposo, y todas las tablas aíslan las filas de cada usuario a nivel de base de datos. El acceso a datos de producción sigue el principio de menor privilegio y las cuentas administrativas requieren autenticación multifactor.</p>
+<p>Y para que quede claro lo que <b>no</b> hemos hecho: ANDA no ha pasado una auditoría de seguridad independiente tipo SOC 2, ni una prueba de penetración externa. Sí superamos la revisión de seguridad que Plaid exige para dar acceso a producción.</p>
 
 <h2>4. Retención y eliminación de datos</h2>
-<p>Conservamos tus datos solo mientras tu cuenta exista. Puedes borrar tu cuenta en cualquier momento desde <b>Ajustes → Borrar cuenta</b> dentro de la app: se eliminan de forma permanente tu perfil, deudas, conexiones bancarias y actividad, y se revoca el acceso bancario. También puedes pedir la eliminación por correo.</p>
+<ul>
+  <li><b>Mientras tu cuenta exista</b> conservamos los datos de arriba para que la app funcione.</li>
+  <li><b>Los reportes de cierre se borran a los 90 días</b>, automáticamente, aunque tu cuenta siga activa.</li>
+  <li><b>Cuando borras tu cuenta</b> (Ajustes → Borrar cuenta) eliminamos de nuestra base de datos tu perfil, deudas, conexiones bancarias, movimientos, racha, tokens de notificación y reportes de cierre, y revocamos con Plaid el acceso de ANDA a tu banco. El borrado es inmediato: no hay papelera ni periodo de gracia.</li>
+  <li><b>Copias de seguridad:</b> no conservamos copias de larga duración de la base de datos, así que no queda una copia de tus datos esperando en algún sitio después de que los borres. Si esto cambia alguna vez, lo diremos aquí y diremos por cuánto tiempo.</li>
+  <li>Borrar tu cuenta en ANDA no borra los datos que Plaid guarda bajo su propia política. Puedes revisar y revocar tus conexiones en <a href="https://my.plaid.com">my.plaid.com</a>.</li>
+</ul>
 
 <h2>5. Tus derechos</h2>
 <p>Puedes acceder, corregir o eliminar tu información personal en cualquier momento desde la app o contactándonos. Respondemos solicitudes verificadas en un máximo de 30 días.</p>
 
 <h2>6. No es asesoría financiera</h2>
-<p>ANDA es una herramienta de planificación. No brinda asesoría financiera, legal ni fiscal, y no mueve dinero en la versión actual.</p>
+<p>ANDA es una herramienta de planificación. No brinda asesoría financiera, legal ni fiscal, y no mueve dinero: tú le pagas a tu emisor, desde tu propio banco. Que un pago aparezca como "verificado" significa que vimos llegar un movimiento que coincide en tu tarjeta — no es una confirmación de tu emisor. Confirma siempre los pagos importantes con tu banco.</p>
 
 <h2>7. Contacto</h2>
-<p>Preguntas o solicitudes: <b>anda.env@gmail.com</b></p>
+<p>Preguntas o solicitudes: <b>hola@anda.finance</b></p>
 </div>
 
 <script>
