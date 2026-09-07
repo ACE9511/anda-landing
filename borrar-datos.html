@@ -13,21 +13,20 @@
   li{margin:6px 0} hr{border:none;border-top:1px solid #e5e4de;margin:44px 0}
   .peq{color:#5f5e5a;font-size:14px}
   .lang{border-top:2px solid #DCF2F0;margin-top:40px;padding-top:8px}
-  .idiomas{position:sticky;top:0;z-index:5;display:flex;justify-content:flex-end;
-           gap:0;padding:10px 0 6px;background:#fafaf7}
-  .idiomas button{font:inherit;font-size:13px;font-weight:600;cursor:pointer;
-                  color:#0E5952;background:#fff;border:1px solid #BBBAAB;
-                  padding:6px 14px}
-  .idiomas button:first-child{border-radius:999px 0 0 999px}
-  .idiomas button:last-child{border-radius:0 999px 999px 0;border-left:none}
-  .idiomas button[aria-pressed="true"]{background:#DCF2F0;border-color:#12857C;color:#0A4A44}
+  /* el MISMO conmutador de anda.finance (skin Pagos/Gastos de la app):
+     pista píldora y pastilla activa con borde agua (ACE, 6-sep) */
+  .idiomas{position:sticky;top:0;z-index:5;display:flex;justify-content:flex-end;padding:10px 0 6px;background:#fafaf7}
+  .conmuta{display:flex;background:#EDEDE6;border:1px solid #BBBAAB;border-radius:999px;padding:2px}
+  .idiomas button{font:inherit;font-size:12px;font-weight:500;cursor:pointer;color:#8A8983;
+                  background:transparent;border:1px solid transparent;padding:3px 12px;border-radius:999px}
+  .idiomas button[aria-pressed="true"]{background:#fff;border-color:#00C9B8;color:#1A1A17;font-weight:700}
   .idiomas button:focus-visible{outline:2px solid #12857C;outline-offset:2px}
 </style>
 </head>
 <body>
 
 <div class="idiomas" id="idiomas" hidden>
-  <button type="button" data-lang="es">Español</button><button type="button" data-lang="en">English</button>
+  <span class="conmuta"><button type="button" data-lang="es">ES</button><button type="button" data-lang="en">EN</button></span>
 </div>
 
 <div id="doc-es">
