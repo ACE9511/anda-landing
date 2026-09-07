@@ -1,129 +1,1342 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <title>ANDA</title>
 <meta name="description" content="ANDA — paga tus deudas de tarjeta con un plan mensual que sí se cumple. ANDA calcula, te avisa y verifica cada pago; tú pagas desde tu banco.">
 <meta property="og:title" content="ANDA — paga tus deudas">
 <meta property="og:description" content="El plan mensual que sí se cumple: ANDA calcula, avisa y verifica. Tú pagas desde tu banco.">
+<meta property="og:url" content="https://anda.finance/">
+<meta property="og:image" content="https://anda.finance/img/og.png">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" type="image/png" sizes="64x64" href="img/icono-64.png">
+<link rel="apple-touch-icon" href="img/icono-180.png">
+<link rel="canonical" href="https://anda.finance/">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@700;800&family=Inter:wght@400;500;600;700;800&display=swap">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"Organization","name":"ANDA","legalName":"Disode LLC","url":"https://anda.finance/","logo":"https://anda.finance/img/icono-180.png","email":"hola@anda.finance"}</script>
 <style>
-  /* ANDA — identidad de la app: fondo oscuro profundo, verde agua de marca,
-     ámbar para acentos. Un solo tema a propósito: es la cara de la marca. */
-  :root {
-    --fondo: #0a1413; --panel: #101c1a; --borde: #1d2f2c;
-    --texto: #e9f4f1; --suave: #93aca6; --agua: #1aa79c; --agua-claro: #46d8c8;
-    --ambar: #e8b04b;
+  /* ══ Tokens REALES de ANDA (src/theme/colores.ts) — página de día, ventana de noche ══ */
+  :root{
+    /* ambiente claro (paletaClara) */
+    --fondo:#EDEDE6; --superficie:#FFFFFF; --borde:#BBBAAB;
+    --tinta:#1A1A17; --tinta2:#5F5E5A; --suave:#8A8983;
+    /* marca (idéntica día/noche) */
+    --agua:#00C9B8; --aguaMedio:#0AA396; --aguaOscuro:#0A6B60; --aguaFondo:#DCF2F0;
+    --fosfo:#2BE8C8; --ambar:#FFAE1A; --rojo:#F5271B;
+    /* escena oscura (paletaOscura) — la ventana de la app */
+    --noche:#000000; --nocheSup:#121212; --nocheBorde:#2A2A28;
+    --nocheTinta:#F2F2F0; --nocheTinta2:#B9B8B2; --nocheSuave:#84837D;
+    --nAguaMedio:#3BE8D5; --nAmbar:#FFC95E; --nVioleta:#8B5CFF; --nVioletaFondo:#1D1633;
+    --sobreAgua:#00201C;
+    /* tokens que cambian con el tema */
+    --vidrio:rgba(237,237,230,.78); --vidrioSolido:rgba(237,237,230,.96);
+    --prontoTinta:#FFAE1A; --enlaceVivo:var(--aguaOscuro);
   }
-  * { margin: 0; padding: 0; box-sizing: border-box; }
-  html { scroll-behavior: smooth; }
-  body { background: var(--fondo); color: var(--texto);
-         font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
-         line-height: 1.6; }
-  a { color: var(--agua-claro); text-decoration: none; }
-  a:hover { text-decoration: underline; }
-  .lienzo { max-width: 720px; margin: 0 auto; padding: 0 22px; }
+  /* ══ TEMA OSCURO — la paleta de noche de la app, para la página entera.
+     Clase en el body (mismo truco blindado que el idioma); la ventana del
+     simulador ya vive de noche y queda integrada. ══ */
+  body.oscuro{
+    --fondo:#000000; --superficie:#121212; --borde:#2A2A28;
+    --tinta:#F2F2F0; --tinta2:#B9B8B2; --suave:#84837D;
+    --vidrio:rgba(0,0,0,.72); --vidrioSolido:rgba(10,10,10,.94);
+    --prontoTinta:#FFC95E; --enlaceVivo:#3BE8D5;
+  }
+  *{box-sizing:border-box;margin:0}
+  [hidden]{display:none!important}
+  /* Anclajes vs. barra fija (ACE, 6-sep): el simulador y "honesta" no tienen
+     padding propio arriba (una va por margen, que el salto de ancla ignora)
+     y aterrizaban DEBAJO de la barra — el número grande salía decapitado.
+     scroll-margin les deja el techo libre; las secciones con padding-top de
+     84px (cómo funciona, precio…) ya aterrizan bien y no se tocan. */
+  #simulador,#honesta{scroll-margin-top:84px}
+  html{scroll-behavior:smooth;overflow-x:clip}
+  body{
+    background:var(--fondo); color:var(--tinta);
+    overflow-x:clip; /* cinturón: nada puede abrir scroll lateral (6-sep) */
+    transition:background .3s ease, color .3s ease;
+    font-family:'Inter',system-ui,sans-serif; line-height:1.5;
+    -webkit-font-smoothing:antialiased;
+  }
+  .money{font-variant-numeric:tabular-nums}
+  a{color:inherit;text-decoration:none}
+  :focus-visible{outline:2px solid var(--aguaMedio);outline-offset:3px;border-radius:4px}
 
-  header { display: flex; align-items: center; justify-content: space-between; padding: 20px 0; }
-  .marca { display: flex; align-items: center; gap: 10px; font-weight: 700; font-size: 1.05rem; letter-spacing: .04em; }
-  .marca img { width: 34px; height: 34px; border-radius: 8px; }
-  .idiomas button { background: none; border: 1px solid var(--borde); color: var(--suave);
-    padding: 4px 10px; border-radius: 8px; cursor: pointer; font-size: .8rem; }
-  .idiomas button.activo { color: var(--agua-claro); border-color: var(--agua); }
+  /* ══ EL FONDO VIVO: un canvas WebGL fijo detrás de toda la página.
+     Cuando el shader arranca, el body se vuelve transparente y el shader
+     pinta también el color base del tema; si WebGL falta o el visitante
+     pide menos movimiento, el fondo plano de siempre sigue ahí. ══ */
+  #fondoVivo{position:fixed;inset:0;z-index:-1;width:100%;height:100%;display:none}
+  body.conFondo{background:transparent}
+  body.conFondo #fondoVivo{display:block}
 
-  .heroe { padding: 64px 0 48px; text-align: center; }
-  .heroe img { width: 96px; height: 96px; border-radius: 22px;
-               box-shadow: 0 12px 48px rgba(26,167,156,.35); }
-  h1 { font-size: clamp(1.9rem, 6vw, 2.8rem); font-weight: 800; line-height: 1.15;
-       margin-top: 26px; letter-spacing: -0.02em; text-wrap: balance; }
-  h1 .verde { color: var(--agua-claro); }
-  .bajada { color: var(--suave); font-size: 1.06rem; max-width: 34em; margin: 18px auto 0; text-wrap: balance; }
-  .pronto { display: inline-block; margin-top: 30px; padding: 10px 20px; border-radius: 999px;
-            border: 1px solid var(--borde); color: var(--ambar); font-weight: 600; font-size: .9rem; }
+  /* bilingüe: UN solo idioma a la vista, SIEMPRE. Nada de display:revert
+     (le quitaba el flex a cejas y botones en inglés y podía dejar los dos
+     idiomas a la vista según el entorno): cada modo solo OCULTA al otro,
+     y el visible conserva el display de su clase. Sin JS: solo español. */
+  body:not(.en) [data-en]{display:none !important}
+  body.en [data-es]{display:none !important}
 
-  .pilares { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-             gap: 14px; padding: 28px 0 8px; }
-  .pilar { background: var(--panel); border: 1px solid var(--borde); border-radius: 16px; padding: 22px 18px; }
-  .pilar .n { font-size: 1.5rem; }
-  .pilar h2 { font-size: 1rem; margin: 10px 0 6px; }
-  .pilar p { color: var(--suave); font-size: .92rem; }
+  /* ══ NAVBAR: transparente arriba, vidrio al bajar ══ */
+  nav{
+    position:fixed;inset:0 0 auto 0;z-index:50;
+    display:flex;align-items:center;justify-content:space-between;
+    max-width:1200px;margin:0 auto;padding:18px 32px;
+    transition:all .3s ease;
+  }
+  nav.vidrio{
+    background:var(--vidrio);
+    backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
+    border-bottom:1px solid var(--borde);
+    padding-top:12px;padding-bottom:12px;
+  }
+  .logo{font-family:'Inter Tight';font-weight:800;font-size:21px;letter-spacing:-.02em;display:flex;align-items:center;gap:7px}
+  .logo::after{content:'';width:8px;height:8px;border-radius:2px;background:var(--agua)}
+  .navlinks{display:flex;align-items:center;gap:26px;font-size:14px;font-weight:500;color:var(--tinta2)}
+  .navlinks a:hover{color:var(--tinta)}
+  .idiomas{display:flex;align-items:center;gap:6px}
+  /* ES/EN con el skin del interruptor Pagos/Gastos del Historial de la app
+     (ACE, 6-sep): pista píldora en el fondo del tema con borde, pastilla
+     activa en superficie con borde AGUA — calcado de HistorialPagos
+     (interruptor: fondo+radio 999+padding 2 · caraBtnOn: superficie+borde agua). */
+  .conmuta{display:flex;background:var(--fondo);border:1px solid var(--borde);border-radius:999px;padding:2px}
+  .conmuta button{background:transparent;border:1px solid transparent;color:var(--suave);
+    padding:3px 12px;border-radius:999px;cursor:pointer;font:inherit;font-size:12px;font-weight:500}
+  .conmuta button.activo{background:var(--superficie);border-color:var(--agua);color:var(--tinta);font-weight:700}
+  /* el del tema sigue redondo y OPACO (ACE, 2-sep: el agua del shader no entra en los botones) */
+  .btnTema{background:var(--superficie);border:1px solid var(--borde);color:var(--suave);
+    padding:4px 10px;border-radius:99px;cursor:pointer;font:inherit;font-size:12px;font-weight:700}
+  .navCta{background:var(--agua);color:var(--sobreAgua);font-weight:700;font-size:13.5px;border-radius:10px;padding:8px 16px}
+  /* al cambiar el idioma NADA de la barra se corre (ACE, 6-sep): cada texto
+     bilingüe reserva el ancho del idioma MÁS LARGO — los dos van apilados en
+     la misma celda y el dormido queda invisible pero ocupando su sitio. */
+  .fija{display:inline-grid;justify-items:center}
+  .fija>[data-es],.fija>[data-en]{grid-area:1/1;white-space:nowrap}
+  body:not(.en) .fija>[data-en]{display:block !important;visibility:hidden}
+  body.en .fija>[data-es]{display:block !important;visibility:hidden}
+  @media(max-width:840px){.navlinks .oculMov{display:none}}
+  /* en el CELL el vidrio esmerilado del nav deja una costura de 1px al
+     encenderse/apagarse con el scroll (la línea blanca de noche / negra de
+     día que cazó ACE, 6-sep — residuo del compositor del navegador con
+     backdrop-filter): en pantallas chicas el vidrio va SÓLIDO, mismo look */
+  @media(max-width:840px){
+    nav.vidrio{backdrop-filter:none;-webkit-backdrop-filter:none;background:var(--vidrioSolido);border-bottom:0}
+    /* y un DELANTAL de 2px del mismo fondo pegado al canto de abajo: si el
+       navegador deja un hueco de sub-píxel entre la barra y el contenido
+       que pasa por detrás (el texto claro asomaba como línea blanca de
+       noche / negra de día — ACE, 6-sep), el delantal lo tapa */
+    nav.vidrio::after{content:'';position:absolute;left:0;right:0;bottom:-2px;height:2px;background:var(--vidrioSolido)}
+  }
+  /* teléfonos angostos: aires cortos y FUERA el CTA del nav — el hero tiene
+     el mismo botón a medio scroll (auditoría responsive 6-sep, dale de ACE) */
+  @media(max-width:480px){
+    nav{padding:12px 16px}
+    nav.vidrio{padding-top:10px;padding-bottom:10px}
+    .navlinks{gap:12px}
+    .navCta{display:none}
+  }
 
-  .honesta { margin: 44px 0 0; padding: 26px 22px; background: var(--panel);
-             border: 1px solid var(--borde); border-left: 3px solid var(--agua); border-radius: 16px; }
-  .honesta h2 { font-size: 1.05rem; margin-bottom: 8px; }
-  .honesta p { color: var(--suave); font-size: .95rem; }
+  /* ══ HERO ══ */
+  .hero{
+    max-width:1200px;margin:0 auto;padding:150px 32px 90px;
+    display:grid;grid-template-columns:1.02fr 1fr;gap:56px;align-items:center;
+  }
+  @media(max-width:960px){.hero{grid-template-columns:1fr;padding-top:120px;gap:40px}}
+  /* la columna del simulador ANCLA ARRIBA: con la nota encima creció, y el
+     centrado vertical le metía la nota debajo de la barra (foto ACE, 6-sep) */
+  .simZona{align-self:start}
+  .ceja{
+    font-size:12px;font-weight:800;letter-spacing:.14em;color:var(--aguaMedio);
+    text-transform:uppercase;display:flex;align-items:center;gap:10px;
+  }
+  .ceja::before{content:'';width:26px;height:2px;background:var(--agua)}
+  h1{
+    font-family:'Inter Tight';font-weight:800;font-size:clamp(38px,4.6vw,58px);
+    line-height:1.04;letter-spacing:-.025em;margin-top:18px;text-wrap:balance;
+  }
+  .marcado{position:relative;white-space:nowrap}
+  .marcado>span{position:relative;z-index:1}
+  .marcado::after{
+    content:'';position:absolute;left:-1%;right:-1%;bottom:.06em;height:.3em;
+    background:var(--agua);opacity:.32;border-radius:3px;
+    transform:scaleX(0);transform-origin:left;animation:marcar .7s .9s cubic-bezier(.2,.7,.2,1) forwards;
+  }
+  @keyframes marcar{to{transform:scaleX(1)}}
+  .triada{margin-top:26px;font-size:17px;color:var(--tinta2);font-weight:500;line-height:1.75}
+  .triada b{color:var(--tinta);font-weight:700}
+  .ctas{margin-top:34px;display:flex;align-items:center;gap:22px;flex-wrap:wrap}
+  .cta{
+    background:var(--agua);color:var(--sobreAgua);font-weight:800;font-size:16px;
+    border-radius:12px;padding:15px 26px;display:inline-flex;align-items:center;gap:10px;
+    transition:transform .18s ease, box-shadow .18s ease;
+  }
+  .cta .fl{transition:transform .18s ease}
+  /* la flecha del CTA dice la verdad del layout (ACE, 6-sep): en PC el
+     simulador queda a la DERECHA (→); en el cell queda DEBAJO (↓) */
+  .flAbajo{display:none}
+  @media(max-width:960px){.flAbajo{display:inline}.flDer{display:none}}
+  .cta:hover{transform:translateY(-1px);box-shadow:0 10px 28px rgba(0,201,184,.35)}
+  .cta:hover .fl{transform:translateX(4px)}
+  .ctaGhost{font-weight:600;font-size:15px;color:var(--enlaceVivo)}
+  .ctaGhost:hover{color:var(--tinta)}
+  .bajoCta{margin-top:18px;font-size:12.5px;color:var(--suave)}
+  .pronto{display:inline-block;margin-top:14px;padding:8px 16px;border-radius:999px;
+          border:1px solid var(--borde);background:var(--superficie);color:var(--prontoTinta);font-weight:700;font-size:12.5px}
 
-  footer { margin-top: 64px; padding: 26px 0 40px; border-top: 1px solid var(--borde);
-           color: var(--suave); font-size: .85rem; display: flex; flex-wrap: wrap; gap: 8px 18px;
-           align-items: center; justify-content: center; text-align: center; }
-  [data-en] { display: none; }
-  html[lang="en"] [data-es] { display: none; }
-  html[lang="en"] [data-en] { display: revert; }
+  /* entrada escalonada */
+  .sube{opacity:0;transform:translateY(26px);animation:subir .6s cubic-bezier(.2,.7,.2,1) forwards}
+  @keyframes subir{to{opacity:1;transform:none}}
+  .d1{animation-delay:.05s}.d2{animation-delay:.18s}.d3{animation-delay:.32s}.d4{animation-delay:.46s}.d5{animation-delay:.62s}
+
+  /* ══ LA VENTANA DE LA APP — SIGUE AL TEMA (ACE, 3-sep: "en el tema blanco
+     que quede blanca la ventana"). Sus colores internos son variables locales:
+     de día la app de día, de noche la de noche — un solo juego de reglas. ══ */
+  .ventana{
+    --vFondo:var(--superficie); --vPanel:#F1F1EA; --vBorde:#D9D8CD;
+    --vTinta:#1A1A17; --vTinta2:#5F5E5A; --vSuave:#8A8983;
+    --vNumero:#0AA396; --vGlow:rgba(10,163,150,.16);
+    --vRaya:rgba(10,163,150,.4); --vRayaViva:rgba(10,163,150,.75);
+    --vAmbar:#FFAE1A; --vAguaViva:#0AA396; --vVioleta:#7C3AFF; --vVioletaFondo:#EFEAFB;
+    --vThumb:#fff; --vCarril:rgba(0,0,0,.12);
+    --vAvisoFondo:#FBF1DC; --vAvisoBorde:#EDDCB4;
+    background:var(--vFondo);border:1px solid var(--vBorde);border-radius:16px;
+    padding:26px 24px 22px;color:var(--vTinta);
+    box-shadow:0 30px 80px rgba(10,107,96,.18), 0 4px 18px rgba(0,0,0,.12);
+  }
+  body.oscuro .ventana{
+    --vFondo:var(--noche); --vPanel:var(--nocheSup); --vBorde:var(--nocheBorde);
+    --vTinta:var(--nocheTinta); --vTinta2:var(--nocheTinta2); --vSuave:var(--nocheSuave);
+    --vNumero:var(--fosfo); --vGlow:rgba(43,232,200,.35);
+    --vRaya:rgba(43,232,200,.35); --vRayaViva:rgba(43,232,200,.7);
+    --vAmbar:var(--nAmbar); --vAguaViva:var(--nAguaMedio); --vVioletaFondo:var(--nVioletaFondo);
+    --vThumb:#000; --vCarril:rgba(255,255,255,.14);
+    --vAvisoFondo:#332510; --vAvisoBorde:#3A2C12;
+  }
+  .vCeja{font-size:10.5px;font-weight:800;letter-spacing:.12em;color:var(--vSuave);text-transform:uppercase}
+  .vCeja .ej{color:var(--vAmbar)}
+  .deudaGrande{
+    font-family:'Inter Tight';font-weight:800;font-size:42px;letter-spacing:-.02em;
+    color:var(--vNumero);margin-top:6px;text-shadow:0 0 26px var(--vGlow);
+    background:none;border:0;border-bottom:2px dashed var(--vRaya);
+    width:100%;padding:0 0 2px;border-radius:0;
+  }
+  .deudaGrande:hover{border-bottom-color:var(--vRayaViva)}
+  .deudaGrande:focus{outline:none;border-bottom:2px solid var(--vNumero)}
+  .spark{display:block;width:100%;height:88px;margin-top:14px}
+  .spark path.linea{fill:none;stroke:var(--agua);stroke-width:2.5;stroke-linecap:round}
+  .spark path.area{fill:url(#dg);opacity:.5}
+  .spark circle{fill:var(--ambar)}
+  .sparkPie{display:flex;justify-content:space-between;font-size:10.5px;color:var(--vSuave);font-weight:600;margin-top:2px}
+  .libertad{display:flex;align-items:baseline;justify-content:space-between;margin-top:16px;gap:12px;flex-wrap:wrap}
+  .libertad .fecha{font-family:'Inter Tight';font-weight:800;font-size:26px;color:var(--vAmbar);text-transform:capitalize}
+  .statFila{display:flex;gap:10px;margin-top:14px;flex-wrap:wrap}
+  .stat{
+    flex:1;min-width:150px;background:var(--vPanel);border:1px solid var(--vBorde);
+    border-radius:12px;padding:10px 13px;
+  }
+  .stat .l{font-size:10px;font-weight:800;letter-spacing:.09em;color:var(--vSuave);text-transform:uppercase}
+  .stat .v{font-size:17px;font-weight:800;margin-top:3px}
+  .stat .v.evita{color:var(--vAguaViva)}
+  .aviso{
+    display:none;margin-top:14px;background:var(--vAvisoFondo);border:1px solid var(--vAvisoBorde);border-radius:12px;
+    padding:11px 14px;font-size:13px;color:var(--vAmbar);line-height:1.5;
+  }
+  .aviso b{font-weight:800}
+
+  .separa{height:1px;background:var(--vBorde);margin:20px 0 16px}
+  .pregunta{font-size:14px;font-weight:700;display:flex;justify-content:space-between;align-items:baseline;gap:10px}
+  .valorZona{display:flex;align-items:center;gap:8px}
+  .valorMes{font-family:'Inter Tight';font-weight:800;font-size:22px;color:var(--vAguaViva);
+    background:none;border:0;padding:0;text-align:right;width:150px}
+  .valorMes:focus{outline:none;border-bottom:2px solid var(--vAguaViva)}
+  /* el teclado SOLO en táctil (ACE, 6-sep: "como en la app… solo para móviles");
+     en desktop el número es solo lectura y manda el deslizador */
+  .tecla{display:none;background:none;border:0;padding:2px;cursor:pointer;color:var(--vAguaViva)}
+  @media (pointer:coarse){.tecla{display:inline-flex}}
+  input[type=range]{
+    width:100%;margin-top:12px;appearance:none;height:6px;border-radius:99px;
+    background:linear-gradient(to right,var(--agua) var(--p,45%),var(--vCarril) var(--p,45%));
+    cursor:pointer;
+  }
+  input[type=range]::-webkit-slider-thumb{
+    appearance:none;width:22px;height:22px;border-radius:50%;background:var(--agua);
+    border:3px solid var(--vThumb);box-shadow:0 0 0 1px var(--agua),0 0 16px rgba(0,201,184,.6);
+    transition:transform .16s ease;
+  }
+  input[type=range]::-moz-range-thumb{
+    width:16px;height:16px;border-radius:50%;background:var(--agua);
+    border:3px solid var(--vThumb);box-shadow:0 0 0 1px var(--agua),0 0 16px rgba(0,201,184,.6);
+    transition:transform .16s ease;
+  }
+  /* la perilla CRECE mientras la agarras (ACE, 6-sep) */
+  input[type=range]:active::-webkit-slider-thumb{transform:scale(1.4)}
+  input[type=range]:active::-moz-range-thumb{transform:scale(1.4)}
+  .rangoPie{display:flex;justify-content:space-between;font-size:11px;color:var(--vSuave);font-weight:600;margin-top:6px}
+
+  /* estrategia — viste VIOLETA (regla de la app). El morado del botón es
+     el VIVO de día de la app (#7C3AFF) en LOS DOS temas — ACE, 3-sep: el
+     lavanda de noche (#8B5CFF) se veía "muy femenino"; chillón y oscuro. */
+  .estrategia{margin-top:18px}
+  .estrCaja{display:flex;gap:6px;background:var(--vVioletaFondo);border:1px solid var(--vBorde);border-radius:12px;padding:5px}
+  .estrCaja button{
+    flex:1;border:0;border-radius:9px;padding:9px 8px;font-family:'Inter';font-size:13px;font-weight:700;
+    background:transparent;color:var(--vTinta2);cursor:pointer;transition:all .2s ease;
+  }
+  .estrCaja button.on{background:var(--vVioleta);color:#fff}
+  .estrNota{font-size:11.5px;color:var(--vSuave);margin-top:7px;text-align:center}
+
+  /* deudas de ejemplo */
+  .tarjetas{margin-top:18px;display:grid;gap:7px}
+  .tarj{display:flex;align-items:center;gap:11px;font-size:13px}
+  .mono{
+    width:28px;height:28px;border-radius:8px;background:var(--vPanel);border:1px solid var(--vBorde);
+    display:inline-flex;align-items:center;justify-content:center;font-weight:800;font-size:11.5px;color:var(--vAguaViva);flex:none;
+  }
+  .tarj .n{color:var(--vTinta2);font-weight:600;flex:1}
+  .tarj .b{font-weight:800}
+  .tarj .apr{color:var(--rojo);font-weight:700;font-size:11.5px;width:86px;text-align:right}
+
+  /* la nota del motor va PEGADA ARRIBA del simulador (ACE, 6-sep: "que
+     salga clara cuando presione probar simulador") — el ancla aterriza en la
+     zona y la frase es lo PRIMERO que se ve, con la rayita agua de la casa */
+  .notaMotor>div{
+    border-left:3px solid var(--agua);padding:2px 4px 2px 14px;margin-bottom:14px;
+    font-size:13px;color:var(--tinta2);line-height:1.55;
+  }
+  .notaMotor b{color:var(--enlaceVivo)}
+
+  /* ══ PILARES + HONESTA — las secciones de siempre, vestidas de día ══ */
+  .lienzo{max-width:1200px;margin:0 auto;padding:0 32px}
+  .seccion{padding-top:84px}
+  .secCeja{font-size:12px;font-weight:800;letter-spacing:.14em;color:var(--aguaMedio);text-transform:uppercase;display:flex;align-items:center;gap:10px}
+  .secCeja::before{content:'';width:26px;height:2px;background:var(--agua)}
+  .pilares{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:16px;margin-top:24px}
+  .pilar{background:var(--superficie);border:1px solid var(--borde);border-radius:16px;padding:24px 20px}
+  /* iconos: SVG de trazo (juego único estilo Lucide), JAMÁS emojis en la
+     UI — ACE, 6-sep: "grandes instituciones no los usan" */
+  .pilar .n{width:44px;height:44px;border-radius:12px;background:var(--aguaFondo);
+    display:flex;align-items:center;justify-content:center}
+  body.oscuro .pilar .n{background:var(--sobreAgua)}
+  .picon{width:24px;height:24px;stroke:var(--enlaceVivo);fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+  .inicon{width:15px;height:15px;stroke:var(--enlaceVivo);fill:none;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round;vertical-align:-2px;margin-right:2px}
+  .btnTema{display:inline-flex;align-items:center;justify-content:center}
+  .btnTema svg{width:15px;height:15px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;display:block}
+  .pilar h2{font-family:'Inter Tight';font-size:17px;margin:10px 0 6px}
+  .pilar p{color:var(--tinta2);font-size:14px}
+  .honesta{margin-top:84px;padding:26px 24px;background:var(--superficie);
+           border:1px solid var(--borde);border-left:3px solid var(--agua);border-radius:16px}
+  .honesta h2{font-family:'Inter Tight';font-size:19px;margin-bottom:8px}
+  .honesta p{color:var(--tinta2);font-size:15px;max-width:62em}
+  /* De noche las ventanas van en NEGRO, no gris (ACE, 3-sep; extendido el
+     6-sep a las secciones nuevas — la regla es para TODA ventana) */
+  body.oscuro .pilar,body.oscuro .honesta,body.oscuro .precioCaja,
+  body.oscuro .faq details,body.oscuro #formAviso input{background:var(--noche)}
+
+  footer{max-width:1200px;margin:84px auto 0;padding:24px 32px 36px;border-top:1px solid var(--borde);
+         color:var(--suave);font-size:13px;display:flex;flex-wrap:wrap;gap:8px 20px;
+         align-items:center;justify-content:center;text-align:center}
+  footer a:hover{color:var(--tinta)}
+
+  /* ══ ASÍ SE VE — capturas reales; siguen al tema de la página ══ */
+  .telefonos{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:26px;margin-top:24px}
+  .tel{margin:0;text-align:center}
+  .tel img{width:100%;max-width:270px;height:auto;border-radius:24px;border:1px solid var(--borde);
+    box-shadow:0 18px 44px rgba(0,0,0,.18);display:block;margin:0 auto;background:#000;
+    cursor:zoom-in;transition:transform .22s ease, box-shadow .22s ease}
+  .tel img:hover{transform:translateY(-8px) scale(1.045);box-shadow:0 28px 60px rgba(0,0,0,.28)}
+  /* el VISOR: clic en una captura = al centro, grande, fondo desenfocado */
+  .visor{position:fixed;inset:0;z-index:120;display:flex;align-items:center;justify-content:center;
+    background:rgba(0,0,0,.45);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
+    cursor:zoom-out;padding:24px}
+  body.oscuro .visor{background:rgba(0,0,0,.62)}
+  .visor img{max-height:90vh;max-width:min(92vw,460px);width:auto;border-radius:26px;
+    border:1px solid var(--borde);box-shadow:0 40px 120px rgba(0,0,0,.5);
+    animation:visorEntra .22s ease}
+  @keyframes visorEntra{from{opacity:0;transform:scale(.94)}to{opacity:1;transform:none}}
+  @keyframes visorPasaDer{from{opacity:0;transform:translateX(42px)}to{opacity:1;transform:none}}
+  @keyframes visorPasaIzq{from{opacity:0;transform:translateX(-42px)}to{opacity:1;transform:none}}
+  @media (prefers-reduced-motion: reduce){
+    .tel img{transition:none}
+    .tel img:hover{transform:none}
+    .visor img{animation:none}
+  }
+  .tel figcaption{margin-top:10px;font-size:13px;font-weight:600;color:var(--tinta2)}
+  .appNota{margin-top:18px;font-size:12.5px;color:var(--suave);text-align:center}
+
+  /* ══ PRECIO CLARO ══ */
+  .precioCaja{margin-top:24px;background:var(--superficie);border:1px solid var(--borde);border-radius:16px;
+    padding:26px 24px;display:flex;gap:28px;align-items:center;flex-wrap:wrap;justify-content:space-between}
+  .precioGrande{font-family:'Inter Tight';font-weight:800;font-size:54px;letter-spacing:-.02em}
+  .precioUnidad{font-size:20px;color:var(--tinta2);font-weight:700}
+  .precioAlt{margin-top:4px;font-size:14px;color:var(--enlaceVivo);font-weight:700}
+  .precioPuntos{list-style:none;padding:0;margin:0;display:grid;gap:8px;font-size:14.5px;color:var(--tinta2);font-weight:600}
+  .precioPuntos li::before{content:'✓ ';color:var(--aguaMedio);font-weight:800}
+  .precioNota{margin-top:12px;font-size:12.5px;color:var(--suave)}
+
+  /* ══ FAQ ══ */
+  .faq{margin-top:24px;display:grid;gap:10px}
+  .faq details{background:var(--superficie);border:1px solid var(--borde);border-radius:14px;padding:0 18px}
+  .faq summary{cursor:pointer;list-style:none;display:flex;justify-content:space-between;align-items:center;gap:12px;
+    padding:15px 0;font-weight:700;font-size:15px}
+  .faq summary::-webkit-details-marker{display:none}
+  .faq summary::after{content:'+';font-weight:800;font-size:19px;color:var(--aguaMedio);flex:none}
+  .faq details[open] summary::after{content:'−'}
+  .faq details p{padding:0 0 16px;color:var(--tinta2);font-size:14.5px;max-width:62em}
+  .faq .enlace{color:var(--enlaceVivo);font-weight:700}
+
+  /* ══ AVÍSAME — el remate de la página ══ */
+  .avisame{text-align:center}
+  .avisameTit{font-family:'Inter Tight';font-weight:800;font-size:clamp(26px,3.4vw,38px);letter-spacing:-.02em}
+  .avisameSub{margin:12px auto 0;max-width:34em;color:var(--tinta2);font-size:15.5px}
+  #formAviso{margin:22px auto 0;display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
+  #formAviso input{flex:1 1 240px;max-width:340px;background:var(--superficie);border:1px solid var(--borde);
+    border-radius:12px;padding:14px 16px;font:inherit;font-size:15px;color:var(--tinta)}
+  #formAviso input:focus{outline:none;border-color:var(--aguaMedio)}
+  #formAviso .cta{border:0;cursor:pointer;font:inherit;font-weight:800}
+  .avisoRes{margin-top:14px;font-weight:700;color:var(--enlaceVivo)}
+  .avisameNota{margin-top:14px;font-size:12px;color:var(--suave)}
+
+  /* el botón dentro de la ventana del simulador */
+  .vCta{display:block;margin-top:16px;background:var(--agua);color:var(--sobreAgua);text-align:center;
+    font-weight:800;font-size:14.5px;border-radius:12px;padding:13px 14px;transition:transform .18s ease, box-shadow .18s ease}
+  .vCta:hover{transform:translateY(-1px);box-shadow:0 10px 26px rgba(0,201,184,.35)}
+
+  @media (prefers-reduced-motion: reduce){
+    .sube,.marcado::after{animation:none;opacity:1;transform:none}
+    .cta,.cta .fl,nav{transition:none}
+  }
 </style>
+</head>
+<body>
+<canvas id="fondoVivo" aria-hidden="true"></canvas>
+
+<nav id="nav">
+  <a class="logo" href="#">ANDA</a>
+  <div class="navlinks">
+    <a href="#como" class="oculMov fija"><span data-es>Cómo funciona</span><span data-en>How it works</span></a>
+    <a href="#honesta" class="oculMov fija"><span data-es>Honestidad</span><span data-en>Honesty</span></a>
+    <a href="#precio" class="oculMov fija"><span data-es>Precio</span><span data-en>Pricing</span></a>
+    <span class="idiomas" role="group" aria-label="Idioma / Language">
+      <span class="conmuta">
+        <button id="btn-es" class="activo" type="button">ES</button>
+        <button id="btn-en" type="button">EN</button>
+      </span>
+      <button id="btn-tema" class="btnTema" type="button" aria-label="Tema claro u oscuro / Light or dark theme"><svg id="icoLuna" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg><svg id="icoSol" viewBox="0 0 24 24" aria-hidden="true" hidden><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg></button>
+    </span>
+    <a class="navCta fija" href="#simulador"><span data-es>Probar el simulador</span><span data-en>Try the simulator</span></a>
+  </div>
+</nav>
+
+<main>
+<section class="hero">
+  <div>
+    <div class="ceja sube d1" data-es>Tu camino a $0 de deuda en tarjetas de crédito</div>
+    <div class="ceja sube d1" data-en>Your path to $0 credit card debt</div>
+    <h1 class="sube d2" data-es>Paga tus deudas con un plan que <span class="marcado"><span>sí se cumple</span></span>.</h1>
+    <h1 class="sube d2" data-en>Pay off your debt with a plan that <span class="marcado"><span>actually sticks</span></span>.</h1>
+    <p class="triada sube d3" data-es><b>ANDA calcula.</b> &nbsp;<b>Tú decides.</b> &nbsp;<b>ANDA verifica.</b><br>
+    Conecta tus tarjetas en modo solo lectura, dinos cuánto puedes pagar al mes, y ANDA te da la fecha exacta en que llegas a $0 — y verifica cada pago cuando llega a tu tarjeta.</p>
+    <p class="triada sube d3" data-en><b>ANDA calculates.</b> &nbsp;<b>You decide.</b> &nbsp;<b>ANDA verifies.</b><br>
+    Connect your cards read-only, tell it what you can pay each month, and ANDA gives you the exact date you reach $0 — and verifies every payment when it lands on your card.</p>
+    <div class="ctas sube d4">
+      <a class="cta" href="#simulador" data-es>Prueba tu plan aquí <span class="fl flAbajo">↓</span><span class="fl flDer">→</span></a>
+      <a class="cta" href="#simulador" data-en>Try your plan here <span class="fl flAbajo">↓</span><span class="fl flDer">→</span></a>
+      <a class="ctaGhost" href="#como" data-es>Ver cómo funciona →</a>
+      <a class="ctaGhost" href="#como" data-en>See how it works →</a>
+    </div>
+    <p class="bajoCta sube d4" data-es>Tu dinero nunca pasa por ANDA. Tú pagas desde tu banco.</p>
+    <p class="bajoCta sube d4" data-en>Your money never passes through ANDA. You pay from your own bank.</p>
+    <div class="sube d4">
+      <a class="pronto" href="#avisame" data-es>Muy pronto en Google Play y el App Store — avísame →</a>
+      <a class="pronto" href="#avisame" data-en>Coming soon to Google Play and the App Store — notify me →</a>
+    </div>
+  </div>
+
+  <div class="simZona sube d5" id="simulador">
+    <div class="notaMotor">
+      <div data-es><svg class="inicon" viewBox="0 0 24 24" aria-hidden="true"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg> <b>Esto no es una animación:</b> es el motor real de ANDA —el mismo que corre en la app— calculando en tu navegador, al centavo. Mueve el deslizador y míralo recalcular tu fecha.</div>
+      <div data-en><svg class="inicon" viewBox="0 0 24 24" aria-hidden="true"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg> <b>This is not an animation:</b> it's ANDA's real engine —the same one that runs in the app— computing in your browser, to the cent. Move the slider and watch it recompute your date.</div>
+    </div>
+    <div class="ventana">
+    <div class="vCeja" data-es>Deuda restante · <span class="ej">ejemplo — tócalo y pon la tuya</span></div>
+    <div class="vCeja" data-en>Remaining debt · <span class="ej">example — tap and type yours</span></div>
+    <input class="deudaGrande money" id="deudaTotal" value="$10,240.87" inputmode="decimal"
+           aria-label="Deuda total del ejemplo / Example total debt">
+
+    <svg class="spark" viewBox="0 0 400 88" preserveAspectRatio="none" aria-hidden="true">
+      <defs>
+        <linearGradient id="dg" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stop-color="#00C9B8" stop-opacity=".35"/>
+          <stop offset="1" stop-color="#00C9B8" stop-opacity="0"/>
+        </linearGradient>
+      </defs>
+      <path class="area" id="sparkArea" d=""/>
+      <path class="linea" id="sparkLinea" d=""/>
+      <circle id="sparkFin" r="4" cx="396" cy="84"/>
+    </svg>
+    <div class="sparkPie"><span data-es>hoy</span><span data-en>today</span><span>$0</span></div>
+
+    <div class="libertad">
+      <span class="vCeja" data-es>Libertad estimada</span>
+      <span class="vCeja" data-en>Estimated freedom</span>
+      <span class="fecha" id="fechaLibertad">—</span>
+    </div>
+
+    <div class="statFila">
+      <div class="stat">
+        <div class="l" data-es>Interés total del plan</div>
+        <div class="l" data-en>Total plan interest</div>
+        <div class="v money" id="interesTotal">—</div>
+      </div>
+      <div class="stat">
+        <div class="l" data-es>Evitas vs. solo mínimos</div>
+        <div class="l" data-en>You avoid vs. minimums</div>
+        <div class="v evita money" id="interesEvitado">—</div>
+      </div>
+    </div>
+
+    <div class="aviso" id="avisoNoViable"></div>
+
+    <div class="separa"></div>
+
+    <div class="pregunta">
+      <span data-es>¿Cuánto puedes pagar al mes?</span>
+      <span data-en>How much can you pay monthly?</span>
+      <span class="valorZona">
+        <input class="valorMes money" id="valorMes" value="$600.00" inputmode="decimal" aria-label="Presupuesto mensual / Monthly budget">
+        <button type="button" id="tecla" class="tecla" aria-label="Escribir el monto / Type the amount"><svg width="15" height="15" viewBox="0 0 15 15" fill="currentColor" aria-hidden="true"><circle cx="2.5" cy="2.5" r="1.7"/><circle cx="7.5" cy="2.5" r="1.7"/><circle cx="12.5" cy="2.5" r="1.7"/><circle cx="2.5" cy="7.5" r="1.7"/><circle cx="7.5" cy="7.5" r="1.7"/><circle cx="12.5" cy="7.5" r="1.7"/><circle cx="2.5" cy="12.5" r="1.7"/><circle cx="7.5" cy="12.5" r="1.7"/><circle cx="12.5" cy="12.5" r="1.7"/></svg></button>
+      </span>
+    </div>
+    <input type="range" id="presupuesto" min="150" max="1500" step="10" value="600" aria-label="Presupuesto mensual / Monthly budget">
+    <div class="rangoPie"><span>$150</span><span id="rangoMax">$1,500</span></div>
+
+    <div class="estrategia">
+      <div class="estrCaja" role="group" aria-label="Estrategia / Strategy">
+        <button id="btnAva" class="on"><span data-es>Avalancha · APR más alto primero</span><span data-en>Avalanche · highest APR first</span></button>
+        <button id="btnBola"><span data-es>Bola de nieve · chicas primero</span><span data-en>Snowball · smallest first</span></button>
+      </div>
+      <div class="estrNota" id="notaAva">
+        <span data-es>Avalancha: el extra va a la tasa más alta — se paga menos interés.</span>
+        <span data-en>Avalanche: the extra goes to the highest rate — less interest paid.</span>
+      </div>
+      <div class="estrNota" id="notaBola" hidden>
+        <span data-es>Bola de nieve: el extra va al saldo más chico — se cierran tarjetas antes.</span>
+        <span data-en>Snowball: the extra goes to the smallest balance — cards close sooner.</span>
+      </div>
+    </div>
+
+    <div class="tarjetas">
+      <div class="tarj"><span class="mono">A</span><span class="n" data-es>Tarjeta ···4821</span><span class="n" data-en>Card ···4821</span><span class="b money" id="balA">$4,280.55</span><span class="apr money">APR 28.99%</span></div>
+      <div class="tarj"><span class="mono">B</span><span class="n" data-es>Tarjeta ···1672</span><span class="n" data-en>Card ···1672</span><span class="b money" id="balB">$3,810.22</span><span class="apr money">APR 24.99%</span></div>
+      <div class="tarj"><span class="mono">C</span><span class="n" data-es>Tarjeta ···0093</span><span class="n" data-en>Card ···0093</span><span class="b money" id="balC">$2,150.10</span><span class="apr money">APR 21.24%</span></div>
+    </div>
+
+    <a class="vCta" href="#avisame">
+      <span data-es>Quiero esta fecha con mis tarjetas de verdad →</span>
+      <span data-en>I want this date with my real cards →</span>
+    </a>
+    </div>
+  </div>
+</section>
 
 <div class="lienzo">
-  <header>
-    <div class="marca"><img src="data:image/png;base64,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" alt="" width="34" height="34">ANDA</div>
-    <nav class="idiomas" aria-label="Idioma">
-      <button id="btn-es" class="activo" onclick="idioma('es')">ES</button>
-      <button id="btn-en" onclick="idioma('en')">EN</button>
-    </nav>
-  </header>
+  <section class="seccion" id="app">
+    <div class="secCeja" data-es>Así se ve por dentro</div>
+    <div class="secCeja" data-en>What it looks like inside</div>
+    <div class="telefonos">
+      <figure class="tel">
+        <img data-es-osc="img/cap-inicio-es-osc.webp" data-es-claro="img/cap-inicio-es-claro.webp" data-en-osc="img/cap-inicio-en-osc.webp" data-en-claro="img/cap-inicio-en-claro.webp" src="img/cap-inicio-es-osc.webp" loading="lazy" width="720" height="1603" alt="ANDA — Inicio: deuda restante y fecha de libertad">
+        <figcaption data-es>Tu deuda y tu fecha, de frente</figcaption>
+        <figcaption data-en>Your debt and your date, up front</figcaption>
+      </figure>
+      <figure class="tel">
+        <img data-es-osc="img/cap-plan-es-osc.webp" data-es-claro="img/cap-plan-es-claro.webp" data-en-osc="img/cap-plan-en-osc.webp" data-en-claro="img/cap-plan-en-claro.webp" src="img/cap-plan-es-osc.webp" loading="lazy" width="720" height="1603" alt="ANDA — Plan: la ruta de pago, tarjeta por tarjeta">
+        <figcaption data-es>El plan, tarjeta por tarjeta</figcaption>
+        <figcaption data-en>The plan, card by card</figcaption>
+      </figure>
+      <figure class="tel">
+        <img data-es-osc="img/cap-pagos-es-osc.webp" data-es-claro="img/cap-pagos-es-claro.webp" data-en-osc="img/cap-pagos-en-osc.webp" data-en-claro="img/cap-pagos-en-claro.webp" src="img/cap-pagos-es-osc.webp" loading="lazy" width="720" height="1603" alt="ANDA — Pagos: cada pago verificado al llegar a tu tarjeta">
+        <figcaption data-es>Cada pago, visto llegar y verificado</figcaption>
+        <figcaption data-en>Every payment, seen arriving and verified</figcaption>
+      </figure>
+    </div>
+    <p class="appNota" data-es>Las capturas siguen el idioma y el tema de esta página — y los montos van tapados con el ojito de privacidad, que también es parte de la app.</p>
+    <p class="appNota" data-en>The screenshots follow this page's language and theme — amounts are covered by the privacy eye, which is part of the app too.</p>
+  </section>
 
-  <main>
-    <section class="heroe">
-      <img src="data:image/png;base64,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" alt="Icono de ANDA" width="96" height="96">
-      <h1 data-es>Paga tus deudas con un plan que <span class="verde">sí se cumple</span></h1>
-      <h1 data-en>Pay off your debt with a plan that <span class="verde">actually sticks</span></h1>
-      <p class="bajada" data-es>ANDA calcula tu plan mensual, te avisa a tiempo y <strong>verifica</strong>
-        que cada pago llegó. Tú pagas desde tu propio banco — tu dinero nunca pasa por nadie más.</p>
-      <p class="bajada" data-en>ANDA builds your monthly plan, reminds you on time, and <strong>verifies</strong>
-        every payment arrived. You pay from your own bank — your money never passes through anyone else.</p>
-      <span class="pronto" data-es>📱 Muy pronto en Google Play y el App Store</span>
-      <span class="pronto" data-en>📱 Coming soon to Google Play and the App Store</span>
-    </section>
-
-    <section class="pilares">
-      <div class="pilar"><div class="n">🏦</div>
+  <section class="seccion" id="como">
+    <div class="secCeja" data-es>Cómo funciona</div>
+    <div class="secCeja" data-en>How it works</div>
+    <div class="pilares">
+      <div class="pilar"><div class="n"><svg class="picon" viewBox="0 0 24 24" aria-hidden="true"><line x1="3" y1="22" x2="21" y2="22"/><line x1="6" y1="18" x2="6" y2="11"/><line x1="10" y1="18" x2="10" y2="11"/><line x1="14" y1="18" x2="14" y2="11"/><line x1="18" y1="18" x2="18" y2="11"/><polygon points="12 2 20 7 4 7"/></svg></div>
         <h2 data-es>Conecta tus tarjetas</h2><h2 data-en>Connect your cards</h2>
-        <p data-es>Con Plaid, en modo solo lectura. ANDA ve tus saldos y pagos; jamás puede tocar tu dinero.</p>
-        <p data-en>Through Plaid, read-only. ANDA sees balances and payments; it can never touch your money.</p>
+        <p data-es>Con Plaid, en modo solo lectura y <b>solo tarjetas de crédito</b>: tus cuentas de cheques y ahorros no se guardan ni se usan. ANDA ve saldos y pagos; jamás puede tocar tu dinero.</p>
+        <p data-en>Through Plaid, read-only and <b>credit cards only</b>: your checking and savings accounts are never stored or used. ANDA sees balances and payments; it can never touch your money.</p>
       </div>
-      <div class="pilar"><div class="n">🗺️</div>
+      <div class="pilar"><div class="n"><svg class="picon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="6" cy="19" r="3"/><path d="M9 19h8.5a3.5 3.5 0 0 0 0-7h-11a3.5 3.5 0 0 1 0-7H15"/><circle cx="18" cy="5" r="3"/></svg></div>
         <h2 data-es>Tu plan, tu fecha</h2><h2 data-en>Your plan, your date</h2>
         <p data-es>Dices cuánto puedes pagar al mes y ANDA arma el plan — avalancha o bola de nieve — con tu fecha de libertad.</p>
         <p data-en>Tell it what you can pay monthly and ANDA builds the plan — avalanche or snowball — with your freedom date.</p>
       </div>
-      <div class="pilar"><div class="n">✅</div>
+      <div class="pilar"><div class="n"><svg class="picon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1 1 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/><path d="m9 12 2 2 4-4"/></svg></div>
         <h2 data-es>Pagos verificados</h2><h2 data-en>Verified payments</h2>
         <p data-es>Pagas desde tu banco y ANDA ve el dinero llegar. Tu racha cuenta meses cumplidos con dinero real.</p>
         <p data-en>You pay from your bank and ANDA watches the money arrive. Your streak counts months completed with real money.</p>
       </div>
-    </section>
+    </div>
+  </section>
 
-    <section class="honesta">
-      <h2 data-es>Una herramienta honesta</h2>
-      <h2 data-en>An honest tool</h2>
-      <p data-es>ANDA nunca inventa un número: si tu banco no reporta un dato, te lo dice y te enseña dónde
-        mirarlo. Es tu plan y tu decisión — ANDA calcula, avisa y verifica. Sin asesoría financiera,
-        sin tocar tu dinero, sin letra chica.</p>
-      <p data-en>ANDA never makes up a number: if your bank doesn't report something, it says so and shows you
-        where to find it. It's your plan and your decision — ANDA calculates, reminds, and verifies.
-        No financial advice, no touching your money, no fine print.</p>
-    </section>
-  </main>
+  <section class="honesta" id="honesta">
+    <h2 data-es>Una herramienta honesta</h2>
+    <h2 data-en>An honest tool</h2>
+    <p data-es>ANDA nunca inventa un número: si tu banco no reporta un dato, te lo dice y te enseña dónde
+      mirarlo. Es tu plan y tu decisión — ANDA calcula, avisa y verifica. Sin asesoría financiera,
+      sin tocar tu dinero, sin letra chica.</p>
+    <p data-en>ANDA never makes up a number: if your bank doesn't report something, it says so and shows you
+      where to find it. It's your plan and your decision — ANDA calculates, reminds, and verifies.
+      No financial advice, no touching your money, no fine print.</p>
+  </section>
 
-  <footer>
-    <span>© 2026 Disode LLC · Miami, FL</span>
-    <a href="mailto:hola@anda.finance">hola@anda.finance</a>
-    <a href="https://haflsrojhbnixeygjbbr.supabase.co/storage/v1/object/public/legal/privacy.html" data-es>Privacidad</a>
-    <a href="https://haflsrojhbnixeygjbbr.supabase.co/storage/v1/object/public/legal/privacy.html" data-en>Privacy</a>
-    <a href="https://haflsrojhbnixeygjbbr.supabase.co/storage/v1/object/public/legal/terms.html" data-es>Términos</a>
-    <a href="https://haflsrojhbnixeygjbbr.supabase.co/storage/v1/object/public/legal/terms.html" data-en>Terms</a>
-  </footer>
+  <section class="seccion" id="precio">
+    <div class="secCeja" data-es>Precio claro</div>
+    <div class="secCeja" data-en>Clear pricing</div>
+    <div class="precioCaja">
+      <div>
+        <div class="precioGrande money">$5.99<span class="precioUnidad" data-es>/mes</span><span class="precioUnidad" data-en>/mo</span></div>
+        <div class="precioAlt" data-es>o $59.99 al año — te ahorras 2 meses</div>
+        <div class="precioAlt" data-en>or $59.99 a year — you save 2 months</div>
+      </div>
+      <ul class="precioPuntos">
+        <li data-es>14 días de prueba gratis</li><li data-en>14-day free trial</li>
+        <li data-es>Cancela cuando quieras desde tu tienda</li><li data-en>Cancel anytime from your store</li>
+        <li data-es>Tu dinero nunca pasa por ANDA</li><li data-en>Your money never passes through ANDA</li>
+      </ul>
+    </div>
+    <p class="precioNota" data-es>¿Muchos bancos que conectar? Dentro de la app hay planes más grandes.</p>
+    <p class="precioNota" data-en>Lots of banks to connect? Bigger plans live inside the app.</p>
+  </section>
+
+  <section class="seccion" id="faq">
+    <div class="secCeja" data-es>Preguntas frecuentes</div>
+    <div class="secCeja" data-en>FAQ</div>
+    <div class="faq">
+      <details>
+        <summary><span data-es>¿ANDA puede tocar mi dinero?</span><span data-en>Can ANDA touch my money?</span></summary>
+        <p data-es>No. La conexión es para solo lectura y solo de tus tarjetas de crédito — tus cuentas de banco no se tocan. Tú pagas desde tu propio banco; el dinero nunca pasa por ANDA.</p>
+        <p data-en>No. The connection is read-only and covers only your credit cards — your bank accounts are never touched. You pay from your own bank; money never passes through ANDA.</p>
+      </details>
+      <details>
+        <summary><span data-es>¿ANDA ve mis contraseñas del banco?</span><span data-en>Does ANDA see my bank passwords?</span></summary>
+        <p data-es>No. Te conectas por Plaid, la misma pieza que usan miles de apps financieras en EE.UU. Tus credenciales las maneja Plaid; ANDA nunca las ve.</p>
+        <p data-en>No. You connect through Plaid — the same rails thousands of U.S. finance apps use. Your credentials stay with Plaid; ANDA never sees them.</p>
+      </details>
+      <details>
+        <summary><span data-es>¿Cuánto cuesta?</span><span data-en>How much does it cost?</span></summary>
+        <p data-es>$5.99 al mes o $59.99 al año, con 14 días de prueba gratis. Se cancela desde Google Play o el App Store cuando quieras.</p>
+        <p data-en>$5.99 a month or $59.99 a year, with a 14-day free trial. Cancel from Google Play or the App Store anytime.</p>
+      </details>
+      <details>
+        <summary><span data-es>¿Y si un mes no me alcanza para pagar mis tarjetas?</span><span data-en>What if one month I can't pay my cards like I planned?</span></summary>
+        <p data-es>Lo que pagas al mes lo decides tú: ajusta tu presupuesto y ANDA recalcula tu fecha al momento. Nada de regaños.</p>
+        <p data-en>What you pay each month is up to you: adjust your budget and ANDA recalculates your date on the spot. No scolding.</p>
+      </details>
+      <details>
+        <summary><span data-es>¿ANDA me da consejos financieros?</span><span data-en>Does ANDA give financial advice?</span></summary>
+        <p data-es>No — ANDA es una herramienta: calcula, avisa y verifica. Las decisiones son siempre tuyas.</p>
+        <p data-en>No — ANDA is a tool: it calculates, reminds, and verifies. The decisions are always yours.</p>
+      </details>
+      <details>
+        <summary><span data-es>¿Puedo borrar mis datos?</span><span data-en>Can I delete my data?</span></summary>
+        <p data-es>Sí: desde la app (Borrar cuenta) o en <a class="enlace" href="borrar-datos.html">anda.finance/borrar-datos</a>.</p>
+        <p data-en>Yes: from the app (Delete account) or at <a class="enlace" href="borrar-datos.html">anda.finance/borrar-datos</a>.</p>
+      </details>
+    </div>
+  </section>
+
+  <section class="seccion avisame" id="avisame">
+    <h2 class="avisameTit" data-es>Sé de los primeros</h2>
+    <h2 class="avisameTit" data-en>Be first in line</h2>
+    <p class="avisameSub" data-es>ANDA está llegando a Google Play y al App Store. Deja tu correo y te avisamos el día que salga — un solo correo, nada de spam.</p>
+    <p class="avisameSub" data-en>ANDA is on its way to Google Play and the App Store. Leave your email and we'll let you know the day it ships — one email, no spam.</p>
+    <form id="formAviso" novalidate>
+      <input id="correoAviso" type="email" inputmode="email" autocomplete="email" placeholder="tu@correo.com" required aria-label="Correo / Email">
+      <button class="cta" type="submit"><span data-es>Avísame</span><span data-en>Notify me</span></button>
+    </form>
+    <p class="avisoRes" id="avisoRes" hidden></p>
+    <p class="avisameNota" data-es>Tu correo se usa solo para avisarte del lanzamiento.</p>
+    <p class="avisameNota" data-en>Your email is used only to tell you about the launch.</p>
+  </section>
+</div>
+</main>
+
+<div class="visor" id="visorFoto" hidden role="dialog" aria-modal="true" aria-label="Captura ampliada / Enlarged screenshot">
+  <img id="visorImg" alt="">
 </div>
 
+<footer>
+  <span>© 2026 Disode LLC · Miami, FL</span>
+  <a href="mailto:hola@anda.finance">hola@anda.finance</a>
+  <a href="privacy.html#es" data-es>Privacidad</a>
+  <a href="privacy.html#en" data-en>Privacy</a>
+  <a href="terms.html#es" data-es>Términos</a>
+  <a href="terms.html#en" data-en>Terms</a>
+  <a href="borrar-datos.html" data-es>Eliminar mis datos</a>
+  <a href="borrar-datos.html" data-en>Delete my data</a>
+</footer>
+
 <script>
-  function idioma(l) {
+/* ══ EL FONDO VIVO ══════════════════════════════════════════════════════════
+   Dos capas en un solo canvas WebGL detrás de toda la página:
+   · LA AURORA: ruido simplex en 4 octavas (fbm) deformado dos veces sobre sí
+     mismo (domain warping) — el flujo lento tipo tinta — más la luz que sigue
+     al puntero (viva SIEMPRE, no se atenúa al bajar — ACE, 3-sep).
+   · EL AGUA DE VERDAD (ACE, 4-sep: "eso fue un efecto de luz, no agua
+     moviéndose"): una SIMULACIÓN física de ondas — la ecuación de onda 2D
+     sobre una textura en ping-pong (la técnica clásica de Hugo Elias /
+     WebGL Water de Evan Wallace): cada texel promedia sus 4 vecinos contra
+     el cuadro anterior, así las ondas VIAJAN, REBOTAN en los bordes e
+     INTERFIEREN de verdad. El clic es la piedrita; ARRASTRAR el clic va
+     sembrando gotas por el camino — el dedo sobre el agua. La altura
+     simulada REFRACTA la aurora (desplaza su muestreo por el gradiente) y
+     pinta brillo/sombra de relieve: agua moviéndose, no un dibujo de anillos.
+   Sin extensiones: la altura va EMPACADA en 2 canales de 8 bits — RGBA8 es
+   framebuffer válido en TODO WebGL1; float/half-float no lo son en muchos
+   teléfonos. La malla del agua se dimensiona al aspecto de la pantalla para
+   que las ondas corran igual de rápido a lo ancho que a lo alto.
+   Respeta prefers-reduced-motion (un frame quieto y sin agua), se pausa con
+   la pestaña oculta, limita el devicePixelRatio; la AURORA se atenúa al
+   hacer scroll para no pelear con la lectura (la luz del puntero y el agua
+   NO se atenúan). Sin WebGL: la página queda como estaba. */
+(function(){
+  'use strict';
+  var canvas = document.getElementById('fondoVivo');
+  var gl = canvas.getContext('webgl', {antialias:false, alpha:false, depth:false, stencil:false});
+  if (!gl) return;
+
+  var VS = 'attribute vec2 p;void main(){gl_Position=vec4(p,0.,1.);}';
+
+  /* altura [-1,1] empacada en 2 bytes (precisión 1/65025) — patrón clásico */
+  var PACK = [
+  'vec2 pack2(float v){',
+  '  v=clamp(v*0.5+0.5,0.0,1.0);',
+  '  vec2 e=vec2(1.0,255.0)*v;e=fract(e);e-=e.yy*vec2(1.0/255.0,0.0);',
+  '  return e;}',
+  'float unpack2(vec2 q){return dot(q,vec2(1.0,1.0/255.0))*2.0-1.0;}'
+  ].join('\n');
+
+  /* ── EL PASO DEL AGUA: h_nuevo = (vecinos)/2 − h_anterior, con fricción.
+     rg = altura de hoy empacada; ba = la de ayer. CLAMP_TO_EDGE hace que
+     las ondas reboten suave en los bordes de la pantalla. ── */
+  var FS_AGUA = [
+  'precision highp float;',
+  'uniform sampler2D uPrev;uniform vec2 uPaso;uniform float uAsp;uniform vec4 uGotas[5];',
+  PACK,
+  'void main(){',
+  '  vec2 uv=gl_FragCoord.xy*uPaso;',
+  '  vec4 t=texture2D(uPrev,uv);',
+  '  float h=unpack2(t.rg), hp=unpack2(t.ba);',
+  '  float sm=unpack2(texture2D(uPrev,uv+vec2(uPaso.x,0.)).rg)',
+  '          +unpack2(texture2D(uPrev,uv-vec2(uPaso.x,0.)).rg)',
+  '          +unpack2(texture2D(uPrev,uv+vec2(0.,uPaso.y)).rg)',
+  '          +unpack2(texture2D(uPrev,uv-vec2(0.,uPaso.y)).rg);',
+  '  float nh=(sm*0.5-hp)*0.982;',
+  '  for(int i=0;i<5;i++){',
+  '    vec2 df=(uv-uGotas[i].xy)*vec2(uAsp,1.0);',
+  '    float dd=length(df)/uGotas[i].z;',
+  '    nh+=uGotas[i].w*exp(-dd*dd);',
+  '  }',
+  '  nh=clamp(nh,-1.0,1.0);',
+  '  gl_FragColor=vec4(pack2(nh),pack2(h));}'
+  ].join('\n');
+
+  var FS = [
+  'precision highp float;',
+  'uniform vec2 uRes;uniform float uT;uniform vec2 uMouse;uniform float uFade;uniform float uHalo;',
+  'uniform sampler2D uAgua;uniform vec2 uPasoAgua;uniform float uAguaOn;',
+  PACK,
+  /* la altura del agua se interpola A MANO: se desempacan los 4 texeles
+     vecinos y se mezcla el NUMERO (con LINEAR el GPU mezclaba los bytes
+     empacados por separado = el hormigueo del cell, ACE 6-sep) */
+  'float hAgua(vec2 q){',
+  '  vec2 g=q/uPasoAgua-0.5;',
+  '  vec2 fq=fract(g);',
+  '  vec2 b=(floor(g)+0.5)*uPasoAgua;',
+  '  float h00=unpack2(texture2D(uAgua,b).rg);',
+  '  float h10=unpack2(texture2D(uAgua,b+vec2(uPasoAgua.x,0.)).rg);',
+  '  float h01=unpack2(texture2D(uAgua,b+vec2(0.,uPasoAgua.y)).rg);',
+  '  float h11=unpack2(texture2D(uAgua,b+uPasoAgua).rg);',
+  '  return mix(mix(h00,h10,fq.x),mix(h01,h11,fq.x),fq.y);}',
+  /* simplex 2D (Ashima / Ian McEwan, dominio publico) */
+  'vec3 permute(vec3 x){return mod(((x*34.0)+1.0)*x,289.0);}',
+  'float snoise(vec2 v){',
+  '  const vec4 C=vec4(0.211324865405187,0.366025403784439,-0.577350269189626,0.024390243902439);',
+  '  vec2 i=floor(v+dot(v,C.yy));vec2 x0=v-i+dot(i,C.xx);',
+  '  vec2 i1=(x0.x>x0.y)?vec2(1.0,0.0):vec2(0.0,1.0);',
+  '  vec4 x12=x0.xyxy+C.xxzz;x12.xy-=i1;i=mod(i,289.0);',
+  '  vec3 p=permute(permute(i.y+vec3(0.0,i1.y,1.0))+i.x+vec3(0.0,i1.x,1.0));',
+  '  vec3 m=max(0.5-vec3(dot(x0,x0),dot(x12.xy,x12.xy),dot(x12.zw,x12.zw)),0.0);',
+  '  m=m*m;m=m*m;',
+  '  vec3 x=2.0*fract(p*C.www)-1.0;vec3 h=abs(x)-0.5;vec3 ox=floor(x+0.5);vec3 a0=x-ox;',
+  '  m*=1.79284291400159-0.85373472095314*(a0*a0+h*h);',
+  '  vec3 g;g.x=a0.x*x0.x+h.x*x0.y;g.yz=a0.yz*x12.xz+h.yz*x12.yw;',
+  '  return 130.0*dot(m,g);}',
+  'float fbm(vec2 p){',
+  '  float f=0.0,a=0.5;',
+  '  for(int i=0;i<4;i++){f+=a*snoise(p);p=p*2.03+vec2(11.7,29.3);a*=0.5;}',
+  '  return f;}',
+  'void main(){',
+  '  vec2 uv=gl_FragCoord.xy/uRes;',
+  /* el agua simulada: gradiente de la altura -> refraccion y relieve */
+  '  float hC=hAgua(uv);',
+  '  float hX=hAgua(uv+vec2(uPasoAgua.x,0.));',
+  '  float hY=hAgua(uv+vec2(0.,uPasoAgua.y));',
+  '  vec2 gr=vec2(hX-hC,hY-hC)*uAguaOn;',
+  /* la aurora entera se muestrea CORRIDA por el agua: refraccion de verdad */
+  '  vec2 uvA=uv+gr*0.30;',
+  '  vec2 p=uvA*vec2(uRes.x/uRes.y,1.0)*1.35;',
+  '  float t=uT*0.035;',
+  /* domain warping doble: q deforma a r, r deforma al campo final */
+  '  vec2 q=vec2(fbm(p+t*vec2(0.9,0.6)),fbm(p+vec2(5.2,1.3)-t*0.7));',
+  '  vec2 r=vec2(fbm(p+2.6*q+vec2(1.7,9.2)+t*vec2(0.5,-0.8)),fbm(p+2.6*q+vec2(8.3,2.8)-t*0.4));',
+  '  float f=fbm(p+2.4*r);',
+  '  float n1=smoothstep(-0.35,0.75,f);',
+  '  float n2=smoothstep(0.15,0.95,fbm(p*1.7+3.1*r-t*0.5));',
+  /* halo que respira alrededor del puntero (tambien lo mece el agua) */
+  '  float d=distance(uvA*vec2(uRes.x/uRes.y,1.0),uMouse*vec2(uRes.x/uRes.y,1.0));',
+  '  float halo=exp(-d*3.2)*0.5;',
+  /* la aurora: base del tema + tres aguas de la casa, con pesos del campo */
+  '  vec3 col=uBase;',
+  '  col=mix(col,uC1,n1*uFuerza);',
+  '  col=mix(col,uC2,n2*n1*uFuerza*0.85);',
+  /* mas presencia arriba (el hero), aire hacia abajo para leer comodo */
+  '  float alto=mix(1.0,0.35,smoothstep(0.72,0.1,uv.y));',
+  '  col=mix(uBase,col,alto*uFade);',
+  /* la luz del puntero va DESPUES del fundido de scroll y altura:
+     NO se degrada al bajar, viva siempre (ACE, 3-sep) */
+  '  col=mix(col,uC3,halo*uHalo*(0.45+0.55*n1));',
+  /* relieve del agua: brillo/sombra segun la cara de la ola, viva siempre */
+  '  col+=vec3((gr.x+gr.y)*0.45);',
+  '  col=mix(col,uC3,clamp(length(gr)*1.4,0.0,0.5)*0.5);',
+  /* grano fino: mata el banding y da textura de imprenta */
+  /* grano SIN seno (hash de Hoskins): sin() con argumentos grandes revienta
+     en los GPUs de celular — devolvia NaN y pintaba media pantalla NEGRA con
+     un borde diagonal (la captura de ACE, 6-sep). Prohibido sin() grande. */
+  '  vec3 p3=fract(gl_FragCoord.xyx*0.1031);',
+  '  p3+=dot(p3,p3.yzx+33.33);',
+  '  float g=fract((p3.x+p3.y)*p3.z);',
+  '  col+=(g-0.5)*0.012;',
+  '  gl_FragColor=vec4(col,1.0);}'
+  ].join('\n');
+
+  var UNIS_BASE = 'uniform vec3 uBase;uniform vec3 uC1;uniform vec3 uC2;uniform vec3 uC3;uniform float uFuerza;';
+  var FSfull = FS.replace('uniform float uHalo;', 'uniform float uHalo;' + UNIS_BASE);
+
+  function shader(tipo, src){
+    var sh = gl.createShader(tipo); gl.shaderSource(sh, src); gl.compileShader(sh);
+    if (!gl.getShaderParameter(sh, gl.COMPILE_STATUS)) throw gl.getShaderInfoLog(sh);
+    return sh;
+  }
+  function programa(fs){
+    var pr = gl.createProgram();
+    gl.attachShader(pr, shader(gl.VERTEX_SHADER, VS));
+    gl.attachShader(pr, shader(gl.FRAGMENT_SHADER, fs));
+    gl.linkProgram(pr);
+    if (!gl.getProgramParameter(pr, gl.LINK_STATUS)) throw gl.getProgramInfoLog(pr);
+    return pr;
+  }
+  var prog, progAgua;
+  try { prog = programa(FSfull); progAgua = programa(FS_AGUA); }
+  catch(e) { return; } /* sin shader no hay fondo: la pagina queda como estaba */
+
+  gl.bindBuffer(gl.ARRAY_BUFFER, gl.createBuffer());
+  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1,-1, 3,-1, -1,3]), gl.STATIC_DRAW);
+  [prog, progAgua].forEach(function(pr){
+    var l = gl.getAttribLocation(pr, 'p');
+    gl.enableVertexAttribArray(l); gl.vertexAttribPointer(l, 2, gl.FLOAT, false, 0, 0);
+  });
+  var U = {};
+  ['uRes','uT','uMouse','uFade','uBase','uC1','uC2','uC3','uFuerza','uHalo','uAgua','uPasoAgua','uAguaOn']
+    .forEach(function(n){ U[n]=gl.getUniformLocation(prog,n); });
+  var UA = { uPrev:gl.getUniformLocation(progAgua,'uPrev'), uPaso:gl.getUniformLocation(progAgua,'uPaso'),
+             uAsp:gl.getUniformLocation(progAgua,'uAsp'), uGotas:gl.getUniformLocation(progAgua,'uGotas[0]') };
+
+  var reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  /* ── la malla del agua (ping-pong). Se re-crea al girar/redimensionar. ── */
+  var simW=0, simH=0, texA=null, texB=null, fboA=null, fboB=null, aguaViva=false;
+  function creaAgua(){
+    [texA,texB].forEach(function(t){ if(t) gl.deleteTexture(t); });
+    [fboA,fboB].forEach(function(f){ if(f) gl.deleteFramebuffer(f); });
+    simH = 224;
+    simW = Math.max(64, Math.min(512, Math.round(simH * innerWidth / Math.max(1, innerHeight))));
+    var d = new Uint8Array(simW*simH*4);
+    for (var i=0;i<d.length;i++) d[i]=127; /* altura 0 empacada (~127/127) */
+    function tex(){
+      var t=gl.createTexture(); gl.bindTexture(gl.TEXTURE_2D,t);
+      /* NEAREST a la fuerza: LINEAR interpola los 2 bytes EMPACADOS por
+         separado y fabrica ruido — el "hormigueo" del cell (ACE, 6-sep).
+         La interpolacion buena la hace hAgua() en el shader, ya desempacado. */
+      gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MIN_FILTER,gl.NEAREST);
+      gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MAG_FILTER,gl.NEAREST);
+      gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_S,gl.CLAMP_TO_EDGE);
+      gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_T,gl.CLAMP_TO_EDGE);
+      gl.texImage2D(gl.TEXTURE_2D,0,gl.RGBA,simW,simH,0,gl.RGBA,gl.UNSIGNED_BYTE,d);
+      return t;
+    }
+    function fbo(t){
+      var f=gl.createFramebuffer(); gl.bindFramebuffer(gl.FRAMEBUFFER,f);
+      gl.framebufferTexture2D(gl.FRAMEBUFFER,gl.COLOR_ATTACHMENT0,gl.TEXTURE_2D,t,0);
+      return f;
+    }
+    texA=tex(); texB=tex(); fboA=fbo(texA); fboB=fbo(texB);
+    aguaViva = !reduce && gl.checkFramebufferStatus(gl.FRAMEBUFFER)===gl.FRAMEBUFFER_COMPLETE;
+    gl.bindFramebuffer(gl.FRAMEBUFFER,null);
+  }
+
+  /* gotas por sembrar: el clic (honda) y el arrastre (el dedo, chiquitas) */
+  var gotas = [];
+  function gota(cx, cy, rPx, f){
+    if (gotas.length > 40) return;
+    gotas.push([cx/innerWidth, 1-cy/innerHeight, Math.max(0.004, rPx/innerHeight), f]);
+  }
+  var arrastre=false, ax=0, ay=0;
+  addEventListener('pointerdown', function(e){
+    if (reduce) return;
+    arrastre=true; ax=e.clientX; ay=e.clientY;
+    gota(e.clientX, e.clientY, 16, -0.9);
+  }, {passive:true});
+  addEventListener('pointermove', function(e){
+    if (!arrastre || reduce) return;
+    var dx=e.clientX-ax, dy=e.clientY-ay, d=Math.sqrt(dx*dx+dy*dy);
+    if (d < 9) return;
+    var n=Math.min(6, Math.floor(d/9));
+    for (var i=1;i<=n;i++) gota(ax+dx*i/n, ay+dy*i/n, 11, -0.22);
+    ax=e.clientX; ay=e.clientY;
+  }, {passive:true});
+  function soltar(){ arrastre=false; }
+  addEventListener('pointerup', soltar, {passive:true});
+  addEventListener('pointercancel', soltar, {passive:true});
+
+  var G = new Float32Array(20);
+  function pasoAgua(){
+    for (var i=0;i<5;i++){
+      var o = gotas.shift();
+      if (o){ G[i*4]=o[0]; G[i*4+1]=o[1]; G[i*4+2]=o[2]; G[i*4+3]=o[3]; }
+      else { G[i*4]=0; G[i*4+1]=0; G[i*4+2]=1; G[i*4+3]=0; }
+    }
+    gl.useProgram(progAgua);
+    gl.uniform1i(UA.uPrev, 0);
+    gl.uniform2f(UA.uPaso, 1/simW, 1/simH);
+    gl.uniform1f(UA.uAsp, innerWidth/Math.max(1,innerHeight));
+    gl.uniform4fv(UA.uGotas, G);
+    gl.bindFramebuffer(gl.FRAMEBUFFER, fboB);
+    gl.viewport(0,0,simW,simH);
+    gl.activeTexture(gl.TEXTURE0); gl.bindTexture(gl.TEXTURE_2D, texA);
+    gl.drawArrays(gl.TRIANGLES,0,3);
+    gl.bindFramebuffer(gl.FRAMEBUFFER,null);
+    var t=texA; texA=texB; texB=t; t=fboA; fboA=fboB; fboB=t;
+  }
+
+  function hex(h){ return [parseInt(h.slice(1,3),16)/255, parseInt(h.slice(3,5),16)/255, parseInt(h.slice(5,7),16)/255]; }
+  /* la luz del puntero (c3/halo) va aparte de la aurora (fuerza): de día
+     MÁS FUERTE y en agua honda para que se vea sobre el crema (ACE, 3-sep) */
+  var TEMAS = {
+    claro:  { base:hex('#EDEDE6'), c1:hex('#DCF2F0'), c2:hex('#9FE8DE'), c3:hex('#00C9B8'), fuerza:0.85, halo:1.0 },
+    oscuro: { base:hex('#000000'), c1:hex('#00201C'), c2:hex('#0A6B60'), c3:hex('#2BE8C8'), fuerza:0.55, halo:0.55 }
+  };
+  function pintaTema(){
+    var t = document.body.classList.contains('oscuro') ? TEMAS.oscuro : TEMAS.claro;
+    gl.useProgram(prog);
+    gl.uniform3fv(U.uBase, t.base); gl.uniform3fv(U.uC1, t.c1);
+    gl.uniform3fv(U.uC2, t.c2); gl.uniform3fv(U.uC3, t.c3);
+    gl.uniform1f(U.uFuerza, t.fuerza); gl.uniform1f(U.uHalo, t.halo);
+  }
+  window.__fondoTema = pintaTema; /* el boton del tema lo llama al cambiar */
+
+  /* MEDIA RESOLUCIÓN (ACE, 5-sep: el scroll se trababa): la aurora es un
+     degradado suave — con ~la mitad de píxeles se ve igual y cuesta 3-4×
+     menos; el CSS estira el canvas a pantalla completa. */
+  var dpr = Math.max(0.75, Math.min((window.devicePixelRatio || 1) * 0.5, 1.0));
+  function mide(){
+    canvas.width = Math.round(innerWidth * dpr);
+    canvas.height = Math.round(innerHeight * dpr);
+    gl.useProgram(prog);
+    gl.uniform2f(U.uRes, canvas.width, canvas.height);
+    creaAgua();
+  }
+  addEventListener('resize', mide);
+
+  /* puntero suavizado (lerp): el halo llega tarde a proposito, como agua */
+  var mx=0.5, my=0.62, tx=0.5, ty=0.62;
+  addEventListener('pointermove', function(e){ tx=e.clientX/innerWidth; ty=1-e.clientY/innerHeight; }, {passive:true});
+  /* al leer, la AURORA se aparta con el scroll (el agua y la luz no) */
+  var fade=1;
+  addEventListener('scroll', function(){ fade = Math.max(0.35, 1 - scrollY/(innerHeight*1.2)); }, {passive:true});
+
+  var vivo = true, t0 = performance.now();
+  /* LUPA del navegador (ACE, 6-sep): con pellizco-zoom el fondo a media
+     resolución se ve como mármol borroso más allá del contenido. Mientras
+     haya zoom, el fondo decorativo SE RETIRA (queda el color plano del tema
+     y la sim en pausa); al volver a 1x, revive solo. */
+  var enZoom = false;
+  if (window.visualViewport) {
+    var vv = window.visualViewport;
+    var mirarZoom = function(){
+      var z = vv.scale > 1.05;
+      if (z === enZoom) return;
+      enZoom = z;
+      document.body.classList.toggle('conFondo', !z);
+      if (!z && vivo && !reduce) requestAnimationFrame(paso);
+    };
+    vv.addEventListener('resize', mirarZoom);
+  }
+  var tUltAgua = -1; /* la sim va a max ~60 pasos/s: a 120Hz corria al doble (cell de ACE) */
+  document.addEventListener('visibilitychange', function(){ vivo = !document.hidden; if (vivo && !reduce) requestAnimationFrame(paso); });
+  function pinta(t){
+    if (aguaViva && t - tUltAgua >= 0.007) { pasoAgua(); tUltAgua = t; }
+    mx += (tx-mx)*0.045; my += (ty-my)*0.045;
+    gl.useProgram(prog);
+    gl.viewport(0,0,canvas.width,canvas.height);
+    gl.activeTexture(gl.TEXTURE0); gl.bindTexture(gl.TEXTURE_2D, texA);
+    gl.uniform1i(U.uAgua, 0);
+    gl.uniform2f(U.uPasoAgua, 1/simW, 1/simH);
+    gl.uniform1f(U.uAguaOn, aguaViva ? 1 : 0);
+    gl.uniform1f(U.uT, t); gl.uniform2f(U.uMouse, mx, my); gl.uniform1f(U.uFade, fade);
+    gl.drawArrays(gl.TRIANGLES, 0, 3);
+  }
+  function paso(now){
+    if (!vivo || reduce || enZoom) return;
+    pinta((now - t0) / 1000);
+    requestAnimationFrame(paso);
+  }
+  mide(); pintaTema();
+  document.body.classList.add('conFondo');
+  if (reduce) { pinta(28); } /* un solo frame, elegido bonito, y quieto */
+  else requestAnimationFrame(paso);
+})();
+</script>
+<script>
+/* El MOTOR REAL de ANDA (src/engine/motorPlanPagos.ts del repo de la app).
+   Regenerar cuando el motor cambie:
+   npx esbuild src/engine/motorPlanPagos.ts --bundle --format=iife --global-name=motorANDA --minify --target=es2018 */
+"use strict";var motorANDA=(()=>{var j=Object.defineProperty;var $=Object.getOwnPropertyDescriptor;var y=Object.getOwnPropertyNames;var w=Object.prototype.hasOwnProperty;var B=(e,a)=>{for(var n in a)j(e,n,{get:a[n],enumerable:!0})},R=(e,a,n,t)=>{if(a&&typeof a=="object"||typeof a=="function")for(let i of y(a))!w.call(e,i)&&i!==n&&j(e,i,{get:()=>a[i],enumerable:!(t=$(a,i))||t.enumerable});return e};var _=e=>R(j({},"__esModule",{value:!0}),e);var z={};B(z,{agruparPagosSemanales:()=>U,cuotaInteresDelDia:()=>L,diarioDe:()=>A,generarPlan:()=>E,interesAhorrado:()=>C,interesAhorradoAcumulado:()=>k,interesAhorradoGanado:()=>H,mensualDe:()=>F});function F(e){var n,t;let a=(t=e.presupuestoMensual)!=null?t:((n=e.presupuestoDiario)!=null?n:0)*30;return Number.isFinite(a)?Math.max(0,a):0}function A(e){var n;let a=(n=e.presupuestoDiario)!=null?n:F(e)/30;return Number.isFinite(a)?Math.max(0,a):0}var s=e=>Math.round(e*100)/100;function q(e,a,n){if(e.balance<=0)return 0;if(n&&e.minimoEsDelBanco&&e.minimoFijo>0)return s(Math.min(e.minimoFijo,e.balance));let t=Math.max(e.minimoFijo,e.balance*e.minimoPorcentaje+a);return s(Math.min(t,e.balance))}function G(e,a,n){let t=Math.max(0,e-n/2);return s(t*(a/12))}function v(e,a){let n=e.filter(t=>t.balance>.01);return a==="avalancha"?[...n].sort((t,i)=>i.apr-t.apr):[...n].sort((t,i)=>t.balance-i.balance)}function E(e,a){var d,M,I;let n=e.map(m=>({...m,balance:Number.isFinite(m.balance)?Math.max(0,Math.min(m.balance,1e7)):0,apr:Number.isFinite(m.apr)?Math.max(0,Math.min(m.apr,1)):0,minimoFijo:Number.isFinite(m.minimoFijo)?Math.max(0,m.minimoFijo):0,minimoPorcentaje:Number.isFinite(m.minimoPorcentaje)?Math.max(0,Math.min(m.minimoPorcentaje,1)):.02,minimoEsDelBanco:m.minimoEsDelBanco===!0})),t=F(a),i=(d=a.maxMeses)!=null?d:360,p=(M=a.fechaInicio)!=null?M:new Date,c=[],r=[],u=0,b=0;for(let m=1;m<=i&&!n.every(o=>o.balance<=.01);m++){let P=new Date(p);P.setMonth(P.getMonth()+(m-1));let T=0,N=new Map;for(let o of n){if(o.balance<=.01)continue;let l=a.soloMinimos?s(o.balance*o.minimoPorcentaje):Math.min(o.balance,t/n.filter(x=>x.balance>.01).length),h=G(o.balance,o.apr,l);o.balance=s(o.balance+h),N.set(o.id,h),T+=h}u+=T;let g=t,D=[];for(let o of n){if(o.balance<=.01)continue;let l=q(o,(I=N.get(o.id))!=null?I:0,m===1);if(l>g)return{viable:!1,meses:r,totalMeses:m-1,fechaLibreDeDeudas:null,interesTotal:s(u),pagadoTotal:s(b),ordenDeAtaque:v(e,a.estrategia).map(h=>h.id),advertencias:[...c,`En el mes ${m} el presupuesto de $${t}/mes no cubre los pagos m\xEDnimos. El usuario necesita aportar m\xE1s o negociar con el emisor.`]};o.balance=s(o.balance-l),g-=l,b+=l,D.push({deudaId:o.id,monto:l,esMinimo:!0})}if(!a.soloMinimos)for(let o of v(n,a.estrategia)){if(g<=.01)break;let l=s(Math.min(g,o.balance));if(l<=0)continue;o.balance=s(o.balance-l),g-=l,b+=l;let h=D.find(x=>x.deudaId===o.id&&!x.esMinimo);h?h.monto=s(h.monto+l):D.push({deudaId:o.id,monto:l,esMinimo:!1})}let S=n.filter(o=>o.balance<=.01&&!r.some(l=>l.deudasSaldadas.includes(o.id))).map(o=>o.id);r.push({mes:m,fecha:P,pagos:D,interesGenerado:s(T),balanceTotalRestante:s(n.reduce((o,l)=>o+Math.max(0,l.balance),0)),deudasSaldadas:S})}let f=n.every(m=>m.balance<=.01);return f||c.push(`El plan supera ${i} meses; sugiere aumentar el pago diario.`),{viable:!0,meses:r,totalMeses:r.length,fechaLibreDeDeudas:f&&r.length>0?r[r.length-1].fecha:null,interesTotal:s(u),pagadoTotal:s(b),ordenDeAtaque:v(e,a.estrategia).map(m=>m.id),advertencias:c}}function C(e,a){let n=E(e,a);if(!n.viable)return 0;let t=E(e,{...a,soloMinimos:!0});return Math.max(0,s(t.interesTotal-n.interesTotal))}function H(e,a,n){let t=C(e,a);if(t<=0||n<=0)return 0;let i=e.reduce((d,M)=>d+M.balance,0),p=A(a),c=Math.max(1,Math.ceil(i/p)),r=0,u=[];for(let d=0;d<c;d++){let M=Math.max(0,i-p*d);u.push(M),r+=M}if(r<=0)return s(t);let b=0,f=Math.min(n,c);for(let d=0;d<f;d++)b+=u[d]/r*t;return s(Math.min(t,b))}function L(e,a){let n=C(e,a);if(n<=0)return 0;let t=e.reduce((r,u)=>r+u.balance,0),i=A(a),p=Math.max(1,Math.ceil(t/i)),c=0;for(let r=0;r<p;r++)c+=Math.max(0,t-i*r);return c<=0?s(n):s(t/c*n)}function k(e,a,n){let t=a/365,i=r=>{let[u,b,f]=r.split("-").map(Number);return Date.UTC(u,(b!=null?b:1)-1,f!=null?f:1)/864e5},p=i(n),c=0;for(let r of e){let u=p-i(r.fecha);u>0&&r.monto>0&&(c+=r.monto*t*u)}return s(c)}function U(e,a){let n=[],i=s(a*7),p=e.pagos.reduce((c,r)=>c+r.monto,0);if(p<=0)return n;for(let c=0;c<4;c++){let r=new Date(e.fecha);r.setDate(r.getDate()-28+c*7);for(let u of e.pagos){let b=u.monto/p,f=s(i*b);f<1||n.push({fechaEjecucion:r,deudaId:u.deudaId,monto:f,descripcion:`Semana ${c+1}: pago ${u.esMinimo?"m\xEDnimo":"extra"}`})}}return n}return _(z);})();
+</script>
+<script>
+(function(){
+  'use strict';
+  var reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  /* las capturas de la app siguen IDIOMA y TEMA (fotos reales de ACE con el
+     ojito tachado, 5-sep: 3 pantallas × es/en × claro/oscuro) */
+  function pintaCapturas(){
+    var k = 'data-' + (document.body.classList.contains('en') ? 'en' : 'es')
+          + '-' + (document.body.classList.contains('oscuro') ? 'osc' : 'claro');
+    var cs = document.querySelectorAll('#app img[data-es-osc]');
+    for (var i = 0; i < cs.length; i++) cs[i].src = cs[i].getAttribute(k);
+  }
+
+  /* clic en una captura: al centro, grande y con el fondo desenfocado
+     (ACE, 6-sep). En el cell se DESLIZA: izquierda = siguiente, derecha =
+     anterior, dando la vuelta; en desktop, flechas del teclado. Se cierra
+     con clic/toque quieto en cualquier parte o con Escape. */
+  var visor = document.getElementById('visorFoto'), visorImg = document.getElementById('visorImg');
+  var visorIdx = 0, visorNoCerrar = 0;
+  function capturasVisibles(){ return document.querySelectorAll('#app img[data-es-osc]'); }
+  function muestraVisor(i, dir){
+    var cs = capturasVisibles();
+    if (!cs.length) return;
+    /* SIN dar la vuelta (ACE, 6-sep): antes de la primera no hay ninguna
+       y después de la última tampoco */
+    if (i < 0 || i >= cs.length) return;
+    visorIdx = i;
+    var img = cs[visorIdx];
+    visorImg.src = img.src; visorImg.alt = img.alt;
+    if (dir && !matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      visorImg.style.animation = 'none';
+      void visorImg.offsetWidth; /* reinicia la animación */
+      visorImg.style.animation = 'visorPasa' + (dir > 0 ? 'Der' : 'Izq') + ' .22s ease';
+    }
+  }
+  function abreVisor(img){
+    var cs = capturasVisibles();
+    for (var i = 0; i < cs.length; i++) if (cs[i] === img) visorIdx = i;
+    muestraVisor(visorIdx, 0);
+    visor.hidden = false;
+    document.body.style.overflow = 'hidden';
+  }
+  function cierraVisor(){
+    visor.hidden = true;
+    document.body.style.overflow = '';
+  }
+  document.addEventListener('click', function(e){
+    var img = e.target.closest ? e.target.closest('#app img[data-es-osc]') : null;
+    if (img) { abreVisor(img); return; }
+    if (!visor.hidden && visor.contains(e.target)) {
+      if (Date.now() - visorNoCerrar < 400) return; /* venía de un deslizamiento */
+      cierraVisor();
+    }
+  });
+  var tocX = null, tocY = null;
+  visor.addEventListener('touchstart', function(e){
+    tocX = e.touches[0].clientX; tocY = e.touches[0].clientY;
+  }, {passive:true});
+  visor.addEventListener('touchend', function(e){
+    if (tocX === null) return;
+    var dx = e.changedTouches[0].clientX - tocX, dy = e.changedTouches[0].clientY - tocY;
+    tocX = null;
+    if (Math.abs(dx) > 48 && Math.abs(dx) > Math.abs(dy) * 1.5) {
+      visorNoCerrar = Date.now(); /* un deslizamiento jamás cierra, ni en el tope */
+      muestraVisor(visorIdx + (dx < 0 ? 1 : -1), dx < 0 ? 1 : -1);
+    }
+  }, {passive:true});
+  document.addEventListener('keydown', function(e){
+    if (visor.hidden) return;
+    if (e.key === 'Escape') cierraVisor();
+    else if (e.key === 'ArrowRight') muestraVisor(visorIdx + 1, 1);
+    else if (e.key === 'ArrowLeft') muestraVisor(visorIdx - 1, -1);
+  });
+
+  /* idioma — el patrón de la casa (los DOS idiomas en el HTML; JS esconde uno) */
+  window.idioma = function(l){
     document.documentElement.lang = l;
+    document.body.classList.toggle('en', l === 'en');
     document.getElementById('btn-es').classList.toggle('activo', l === 'es');
     document.getElementById('btn-en').classList.toggle('activo', l === 'en');
-    try { localStorage.setItem('anda-lang', l); } catch (e) {}
+    pintaCapturas();
+    try { localStorage.setItem('anda-lang', l); } catch(e) {}
+    recalcula(); // la fecha y el aviso se re-escriben en el idioma nuevo
+  };
+  function langActual(){ return document.body.classList.contains('en') ? 'en' : 'es'; }
+  document.getElementById('btn-es').addEventListener('click', function(){ window.idioma('es'); });
+  document.getElementById('btn-en').addEventListener('click', function(){ window.idioma('en'); });
+
+  /* tema claro/oscuro — la paleta de la app; arranca con el del sistema */
+  var btnTema = document.getElementById('btn-tema');
+  function tema(t){
+    document.body.classList.toggle('oscuro', t === 'oscuro');
+    /* el icono dice EL TEMA PUESTO: luna de noche, sol de día (ACE, 6-sep).
+       OJO: los SVG no tienen la propiedad .hidden (es de HTMLElement) — hay
+       que tocar el ATRIBUTO, si no la luna se queda para siempre (6-sep). */
+    document.getElementById('icoLuna').toggleAttribute('hidden', t !== 'oscuro');
+    document.getElementById('icoSol').toggleAttribute('hidden', t === 'oscuro');
+    try { localStorage.setItem('anda-tema', t); } catch(e) {}
+    if (window.__fondoTema) window.__fondoTema();
+    pintaCapturas();
   }
-  try { var g = localStorage.getItem('anda-lang'); if (g === 'en') idioma('en'); } catch (e) {}
+  btnTema.addEventListener('click', function(){
+    tema(document.body.classList.contains('oscuro') ? 'claro' : 'oscuro');
+  });
+  var t0 = null;
+  try { t0 = localStorage.getItem('anda-tema'); } catch(e) {}
+  if (t0 !== 'claro' && t0 !== 'oscuro') t0 = matchMedia('(prefers-color-scheme: dark)').matches ? 'oscuro' : 'claro';
+  tema(t0);
+
+  /* navbar vidrio */
+  var nav = document.getElementById('nav');
+  addEventListener('scroll', function(){ nav.classList.toggle('vidrio', scrollY > 60); }, {passive:true});
+
+  /* ── el ejemplo (rotulado como ejemplo; centavos SIEMPRE). La deuda TOTAL la
+     puede escribir el visitante: las tres tarjetas se escalan en proporción. ── */
+  var BASE = [
+    { id:'a', nombre:'A', balance:4280.55, apr:0.2899, minimoPorcentaje:0.02, minimoFijo:25 },
+    { id:'b', nombre:'B', balance:3810.22, apr:0.2499, minimoPorcentaje:0.02, minimoFijo:25 },
+    { id:'c', nombre:'C', balance:2150.10, apr:0.2124, minimoPorcentaje:0.02, minimoFijo:25 },
+  ];
+  var TOTAL_BASE = 10240.87;
+  var totalDeuda = TOTAL_BASE;
+  function deudas(){
+    var f = totalDeuda / TOTAL_BASE, out = [], suma = 0;
+    for (var i = 0; i < BASE.length; i++){
+      var d = Object.assign({}, BASE[i]);
+      d.balance = i < BASE.length - 1
+        ? Math.round(BASE[i].balance * f * 100) / 100
+        : Math.round((totalDeuda - suma) * 100) / 100; // la última cuadra al centavo
+      suma = Math.round((suma + d.balance) * 100) / 100;
+      out.push(d);
+    }
+    return out;
+  }
+  var usd = new Intl.NumberFormat('en-US',{style:'currency',currency:'USD'});
+
+  var $ = function(id){ return document.getElementById(id); };
+  var rango=$('presupuesto'), valorMes=$('valorMes'), fechaEl=$('fechaLibertad'),
+      intEl=$('interesTotal'), evitaEl=$('interesEvitado'), aviso=$('avisoNoViable'),
+      linea=$('sparkLinea'), area=$('sparkArea'), fin=$('sparkFin'),
+      deudaEl=$('deudaTotal'), rangoMax=$('rangoMax');
+  var estrategia='avalancha';
+
+  /* tween suave de números (respeta reduced-motion) */
+  var tweens={};
+  function pon(el, t){ if (el.tagName === 'INPUT') el.value = t; else el.textContent = t; }
+  function pintaNum(el, hasta, fmt){
+    var desde = el._v==null ? hasta : el._v; el._v = hasta;
+    if(reduce || desde===hasta){ pon(el, fmt(hasta)); return; }
+    cancelAnimationFrame(tweens[el.id]);
+    var t0=performance.now();
+    (function paso(t){
+      var k=Math.min(1,(t-t0)/400); k=1-Math.pow(1-k,3);
+      pon(el, fmt(desde+(hasta-desde)*k));
+      if(k<1) tweens[el.id]=requestAnimationFrame(paso);
+    })(t0);
+  }
+
+  function dibujaSpark(plan){
+    /* la curva arranca en la deuda de hoy y baja mes a mes hasta $0 */
+    var pts=[totalDeuda]; plan.meses.forEach(function(m){ pts.push(m.balanceTotalRestante); });
+    var W=400,H=88,max=pts[0]||1;
+    var d='';
+    pts.forEach(function(v,i){
+      var x=i*(W/(pts.length-1||1)), y=6+(H-12)*(1-v/max);
+      d+=(i?' L':'M')+x.toFixed(1)+' '+y.toFixed(1);
+    });
+    linea.setAttribute('d',d);
+    area.setAttribute('d', d+' L'+W+' '+H+' L0 '+H+' Z');
+    fin.setAttribute('cx',W); fin.setAttribute('cy',6+(H-12));
+    if(!reduce){
+      var largo=linea.getTotalLength();
+      linea.style.transition='none';
+      linea.style.strokeDasharray=largo; linea.style.strokeDashoffset=largo;
+      linea.getBoundingClientRect();
+      linea.style.transition='stroke-dashoffset .7s cubic-bezier(.2,.7,.2,1)';
+      linea.style.strokeDashoffset='0';
+    }
+  }
+
+  function recalcula(){
+    var v=Number(rango.value), es = langActual()==='es';
+    rango.style.setProperty('--p', ((v - Number(rango.min)) / (Number(rango.max) - Number(rango.min)) * 100) + '%');
+    pintaNum(valorMes, v, function(n){ return usd.format(n); });
+
+    var plan = motorANDA.generarPlan(deudas(), {presupuestoMensual:v, estrategia:estrategia});
+    if(!plan.viable){
+      /* la honestidad de la casa: ANDA no promete un plan que no existe */
+      aviso.style.display='block';
+      aviso.innerHTML = es
+        ? 'Con '+usd.format(v)+' al mes no se cubren ni los pagos mínimos de este ejemplo. <b>ANDA te lo dice</b> — no te pinta un plan que no existe.'
+        : 'At '+usd.format(v)+' a month, even the minimum payments in this example aren\'t covered. <b>ANDA tells you</b> — it won\'t paint a plan that doesn\'t exist.';
+      fechaEl.textContent='—'; intEl.textContent='—'; evitaEl.textContent='—';
+      intEl._v=null; evitaEl._v=null;
+      linea.setAttribute('d',''); area.setAttribute('d','');
+      return;
+    }
+    aviso.style.display='none';
+    var f=plan.fechaLibreDeDeudas;
+    fechaEl.textContent = f
+      ? new Intl.DateTimeFormat(es ? 'es' : 'en', {month:'long', year:'numeric'}).format(f)
+      : '—';
+    pintaNum(intEl, plan.interesTotal, function(n){ return usd.format(n); });
+
+    var base = motorANDA.generarPlan(deudas(), {presupuestoMensual:v, estrategia:estrategia, soloMinimos:true});
+    var evitado = Math.max(0, base.interesTotal - plan.interesTotal);
+    pintaNum(evitaEl, evitado, function(n){ return usd.format(n); });
+
+    dibujaSpark(plan);
+  }
+
+  rango.addEventListener('input', recalcula);
+
+  /* el presupuesto TECLEADO (ACE, 6-sep: "como en la app… solo para móviles"):
+     en táctil sale el icono y el número se edita con teclado numérico; en
+     desktop queda solo lectura y manda el deslizador. */
+  var tecla = $('tecla');
+  var tactil = matchMedia('(pointer: coarse)').matches;
+  if (!tactil) { valorMes.readOnly = true; valorMes.tabIndex = -1; }
+  tecla.addEventListener('click', function(){ valorMes.focus(); });
+  valorMes.addEventListener('focus', function(){ if (!valorMes.readOnly) valorMes.select(); });
+  valorMes.addEventListener('keydown', function(e){ if (e.key === 'Enter') valorMes.blur(); });
+  valorMes.addEventListener('change', function(){
+    var n = parseFloat(String(valorMes.value).replace(/[^0-9.]/g, ''));
+    if (!isFinite(n)) n = Number(rango.value);
+    n = Math.min(Number(rango.max), Math.max(Number(rango.min), Math.round(n * 100) / 100));
+    rango.value = n;
+    valorMes._v = null; /* que pinte el valor limpio aunque no cambie */
+    recalcula();
+  });
+
+  /* la deuda editable: se confirma al salir del campo o con Enter */
+  function fijaDeuda(){
+    var n = parseFloat(String(deudaEl.value).replace(/[^0-9.]/g, ''));
+    if (!isFinite(n)) n = totalDeuda;
+    n = Math.min(1000000, Math.max(100, Math.round(n * 100) / 100));
+    totalDeuda = n;
+    deudaEl.value = usd.format(n);
+    var ds = deudas();
+    $('balA').textContent = usd.format(ds[0].balance);
+    $('balB').textContent = usd.format(ds[1].balance);
+    $('balC').textContent = usd.format(ds[2].balance);
+    /* el tope del presupuesto crece con la deuda: con $80,000 un tope de
+       $1,500/mes solo daría planes inviables y el simulador parecería roto */
+    var tope = Math.max(1500, Math.ceil(totalDeuda * 0.15 / 50) * 50);
+    rango.max = tope;
+    rango.step = tope > 5000 ? 50 : 10;
+    rangoMax.textContent = usd.format(tope).replace(/\.00$/, '');
+    if (Number(rango.value) > tope) rango.value = tope;
+    recalcula();
+  }
+  deudaEl.addEventListener('change', fijaDeuda);
+  deudaEl.addEventListener('keydown', function(e){ if (e.key === 'Enter') deudaEl.blur(); });
+  deudaEl.addEventListener('focus', function(){ deudaEl.select(); });
+  /* en PC el CTA del hero no tiene nada que scrollear (el simulador ya está
+     a la vista): deja el campo de la deuda seleccionado, listo pa' escribir */
+  var ctasSim = document.querySelectorAll('a.cta[href="#simulador"]');
+  for (var ci = 0; ci < ctasSim.length; ci++) {
+    ctasSim[ci].addEventListener('click', function(){
+      if (matchMedia('(min-width: 961px)').matches) setTimeout(function(){ deudaEl.focus(); }, 300);
+    });
+  }
+  var bA=$('btnAva'), bB=$('btnBola');
+  function eligeEstr(e){
+    estrategia=e;
+    bA.classList.toggle('on', e==='avalancha');
+    bB.classList.toggle('on', e==='bola_de_nieve');
+    /* la nota explica la estrategia ELEGIDA — mismo copy que la app (ruta_impacto_*) */
+    $('notaAva').hidden = e !== 'avalancha';
+    $('notaBola').hidden = e === 'avalancha';
+    recalcula();
+  }
+  bA.addEventListener('click', function(){ eligeEstr('avalancha'); });
+  bB.addEventListener('click', function(){ eligeEstr('bola_de_nieve'); });
+
+  /* ── la lista de espera: el correo aterriza en Supabase (tabla
+     lista_espera; RLS: el anónimo SOLO inserta, nadie la lee desde fuera).
+     La llave publishable es pública por diseño — lo que protege es el RLS.
+     Un correo repetido devuelve 409 y se trata como éxito. ── */
+  var SB_URL = 'https://haflsrojhbnixeygjbbr.supabase.co';
+  var SB_KEY = 'sb_publishable_uzwj_SHWcgkOzsZawM6_Rg_y_D_DT6Q';
+  var formAviso = $('formAviso'), correoAviso = $('correoAviso'), avisoRes = $('avisoRes');
+  function dime(t){ avisoRes.hidden = false; avisoRes.textContent = t; }
+  formAviso.addEventListener('submit', function(ev){
+    ev.preventDefault();
+    var es = langActual() === 'es';
+    var v = String(correoAviso.value || '').trim();
+    if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(v)) {
+      dime(es ? 'Ese correo no se ve completo — revísalo.' : 'That email looks incomplete — check it.');
+      return;
+    }
+    var btn = formAviso.querySelector('button'); btn.disabled = true;
+    fetch(SB_URL + '/rest/v1/lista_espera', {
+      method: 'POST',
+      headers: { apikey: SB_KEY, 'Content-Type': 'application/json', Prefer: 'return=minimal' },
+      body: JSON.stringify({ correo: v.toLowerCase(), idioma: langActual(), origen: 'web' })
+    }).then(function(r){
+      if (r.ok || r.status === 409) {
+        formAviso.hidden = true;
+        dime(es ? 'Listo — te escribimos el día que salga.' : "Done — we'll write you the day it ships.");
+      } else {
+        btn.disabled = false;
+        dime(es ? 'No se pudo guardar — inténtalo otra vez.' : "Couldn't save it — try again.");
+      }
+    }).catch(function(){
+      btn.disabled = false;
+      dime(es ? 'No se pudo guardar — inténtalo otra vez.' : "Couldn't save it — try again.");
+    });
+  });
+
+  try { var g = localStorage.getItem('anda-lang'); if (g === 'en') window.idioma('en'); } catch(e) {}
+  recalcula();
+})();
 </script>
+</body>
+</html>
