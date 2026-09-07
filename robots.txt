@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://anda.finance/sitemap.xml
