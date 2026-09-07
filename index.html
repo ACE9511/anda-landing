@@ -140,7 +140,7 @@
 
   /* ══ HERO ══ */
   .hero{
-    max-width:1200px;margin:0 auto;padding:150px 32px 90px;
+    max-width:1200px;margin:0 auto;padding:142px 32px 0;
     display:grid;grid-template-columns:1.02fr 1fr;gap:56px;align-items:center;
   }
   @media(max-width:960px){.hero{grid-template-columns:1fr;padding-top:120px;gap:40px}}
@@ -310,6 +310,9 @@
   /* ══ PILARES + HONESTA — las secciones de siempre, vestidas de día ══ */
   .lienzo{max-width:1200px;margin:0 auto;padding:0 32px}
   .seccion{padding-top:84px}
+  /* mismo aire que entre la barra y la nota del motor (ACE, 6-sep: "la misma
+     y un tin menos"): 76px, como el hueco de arriba */
+  #app{padding-top:76px}
   .secCeja{font-size:12px;font-weight:800;letter-spacing:.14em;color:var(--aguaMedio);text-transform:uppercase;display:flex;align-items:center;gap:10px}
   .secCeja::before{content:'';width:26px;height:2px;background:var(--agua)}
   .pilares{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:16px;margin-top:24px}
