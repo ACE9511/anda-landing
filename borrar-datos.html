@@ -12,13 +12,28 @@
   .caja{background:#dcf2f0;border-radius:12px;padding:16px 18px;margin:18px 0}
   li{margin:6px 0} hr{border:none;border-top:1px solid #e5e4de;margin:44px 0}
   .peq{color:#5f5e5a;font-size:14px}
+  .lang{border-top:2px solid #DCF2F0;margin-top:40px;padding-top:8px}
+  .idiomas{position:sticky;top:0;z-index:5;display:flex;justify-content:flex-end;
+           gap:0;padding:10px 0 6px;background:#fafaf7}
+  .idiomas button{font:inherit;font-size:13px;font-weight:600;cursor:pointer;
+                  color:#0E5952;background:#fff;border:1px solid #BBBAAB;
+                  padding:6px 14px}
+  .idiomas button:first-child{border-radius:999px 0 0 999px}
+  .idiomas button:last-child{border-radius:0 999px 999px 0;border-left:none}
+  .idiomas button[aria-pressed="true"]{background:#DCF2F0;border-color:#12857C;color:#0A4A44}
+  .idiomas button:focus-visible{outline:2px solid #12857C;outline-offset:2px}
 </style>
 </head>
 <body>
 
+<div class="idiomas" id="idiomas" hidden>
+  <button type="button" data-lang="es">Español</button><button type="button" data-lang="en">English</button>
+</div>
+
+<div id="doc-es">
 <h1>Eliminar tus datos — ANDA</h1>
 <p class="peq">Aplicación: <strong>Anda: paga tus deudas</strong> · Desarrollador: <strong>Disode LLC</strong><br>
-Fecha de vigencia: 23 de agosto de 2026 · Effective date: August 23, 2026</p>
+Fecha de vigencia: 23 de agosto de 2026</p>
 
 <h2>Cómo solicitar la eliminación de tus datos</h2>
 
@@ -68,10 +83,12 @@ nuestros servidores al instante.</p>
       fiscales) durante el período que la ley requiera, y nada más.</li>
 </ul>
 
-<hr>
+</div>
 
+<div id="doc-en" class="lang">
 <h1>Delete your data — ANDA</h1>
-<p class="peq">App: <strong>Anda: pay off your debts</strong> · Developer: <strong>Disode LLC</strong></p>
+<p class="peq">App: <strong>Anda: pay off your debts</strong> · Developer: <strong>Disode LLC</strong><br>
+Effective date: August 23, 2026</p>
 
 <h2>How to request deletion of your data</h2>
 
@@ -117,6 +134,45 @@ debts</strong> (trash icon). They are removed from our servers immediately.</p>
   <li>We may retain minimal records required by law (e.g. accounting or tax) for
       the legally required period, and nothing else.</li>
 </ul>
+</div>
+
+<script>
+(function () {
+  // Sin JS no se toca nada: se ven los dos idiomas, como siempre.
+  var caja = document.getElementById('idiomas');
+  var bloques = { es: document.getElementById('doc-es'), en: document.getElementById('doc-en') };
+  if (!caja || !bloques.es || !bloques.en) return;
+  caja.hidden = false;
+
+  function elegir(l, recordar) {
+    if (l !== 'es' && l !== 'en') l = 'es';
+    bloques.es.hidden = (l !== 'es');
+    bloques.en.hidden = (l !== 'en');
+    document.documentElement.lang = l;
+    var bs = caja.querySelectorAll('button');
+    for (var i = 0; i < bs.length; i++) {
+      bs[i].setAttribute('aria-pressed', String(bs[i].getAttribute('data-lang') === l));
+    }
+    if (recordar) {
+      try { history.replaceState(null, '', '#' + l); } catch (e) { location.hash = l; }
+    }
+  }
+
+  // 1) lo que pida el enlace (#es / #en); 2) el idioma del navegador;
+  // 3) español, que es el de la mayoría.
+  var h = (location.hash || '').replace('#', '').toLowerCase();
+  var nav = (navigator.language || 'es').slice(0, 2).toLowerCase();
+  elegir(h === 'es' || h === 'en' ? h : (nav === 'en' ? 'en' : 'es'), false);
+
+  caja.addEventListener('click', function (ev) {
+    var b = ev.target.closest('button[data-lang]');
+    if (b) elegir(b.getAttribute('data-lang'), true);
+  });
+  window.addEventListener('hashchange', function () {
+    elegir((location.hash || '').replace('#', '').toLowerCase(), false);
+  });
+})();
+</script>
 
 </body>
 </html>
