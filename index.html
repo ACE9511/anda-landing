@@ -372,10 +372,6 @@
   .visor{position:fixed;inset:0;z-index:120;display:flex;align-items:center;justify-content:center;
     background:rgba(0,0,0,.45);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
     cursor:zoom-out;padding:24px;touch-action:none;overscroll-behavior:contain}
-  .visorX{position:absolute;top:16px;right:16px;width:42px;height:42px;border-radius:99px;
-    background:rgba(0,0,0,.5);border:1px solid rgba(255,255,255,.3);color:#fff;
-    display:flex;align-items:center;justify-content:center;cursor:pointer;padding:0}
-  .visorX svg{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:2.4;stroke-linecap:round}
   body.oscuro .visor{background:rgba(0,0,0,.62)}
   .visor img{max-height:90vh;max-width:min(92vw,460px);width:auto;border-radius:26px;
     border:1px solid var(--borde);box-shadow:0 40px 120px rgba(0,0,0,.5);
@@ -698,7 +694,6 @@
 </main>
 
 <div class="visor" id="visorFoto" hidden role="dialog" aria-modal="true" aria-label="Captura ampliada / Enlarged screenshot">
-  <button type="button" id="visorCerrar" class="visorX" aria-label="Cerrar / Close"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></button>
   <img id="visorImg" alt="">
 </div>
 
@@ -1138,20 +1133,14 @@
     if (tocX === null) return;
     var dx = e.changedTouches[0].clientX - tocX, dy = e.changedTouches[0].clientY - tocY;
     tocX = null;
-    /* deslizar hacia ABAJO = la imagen vuelve a su lugar (ACE, 8-sep) */
+    /* en TÁCTIL manda solo el GESTO (ACE, 8-sep: "lo que dije fue deslizar
+       hacia abajo"): bajar el dedo devuelve la imagen; el toque NO cierra */
+    visorNoCerrar = Date.now(); /* el click sintético del toque tampoco */
     if (dy > 40 && dy > Math.abs(dx) * 1.2) { e.preventDefault(); cierraVisor(); return; }
     if (Math.abs(dx) > 48 && Math.abs(dx) > Math.abs(dy) * 1.5) {
-      visorNoCerrar = Date.now(); /* un deslizamiento lateral jamás cierra, ni en el tope */
       muestraVisor(visorIdx + (dx < 0 ? 1 : -1), dx < 0 ? 1 : -1);
-      return;
     }
-    /* toque QUIETO en cualquier parte = cerrar, medido aquí mismo: en
-       iPhone el click delegado en document a veces no llega (8-sep) */
-    if (Math.abs(dx) < 12 && Math.abs(dy) < 12) { e.preventDefault(); cierraVisor(); }
   }, {passive:false});
-  var visorCerrar = document.getElementById('visorCerrar');
-  visorCerrar.addEventListener('click', function(e){ e.stopPropagation(); cierraVisor(); });
-  visorCerrar.addEventListener('touchend', function(e){ e.preventDefault(); e.stopPropagation(); cierraVisor(); }, {passive:false});
   document.addEventListener('keydown', function(e){
     if (visor.hidden) return;
     if (e.key === 'Escape') cierraVisor();
