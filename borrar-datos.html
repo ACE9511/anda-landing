@@ -5,28 +5,38 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Eliminar tus datos — ANDA (Disode LLC)</title>
 <style>
+  :root{--fondo:#fafaf7;--tinta:#1a1a17;--tinta2:#5f5e5a;--titulo:#0e5952;--caja:#dcf2f0;
+        --raya:#DCF2F0;--pista:#EDEDE6;--borde:#BBBAAB;--sup:#fff;--suave:#8A8983;--agua:#00C9B8}
+  body.oscuro{--fondo:#000;--tinta:#F2F2F0;--tinta2:#B9B8B2;--titulo:#3BE8D5;--caja:#00201C;
+        --raya:#1D2F2C;--pista:#121212;--borde:#2A2A28;--sup:#121212;--suave:#84837D}
   body{font-family:-apple-system,Segoe UI,Roboto,sans-serif;max-width:720px;margin:0 auto;
-       padding:32px 20px 80px;color:#1a1a17;line-height:1.6;background:#fafaf7}
-  h1{font-size:26px;color:#0e5952} h2{font-size:19px;color:#0e5952;margin-top:36px}
+       padding:32px 20px 80px;color:var(--tinta);line-height:1.6;background:var(--fondo);
+       transition:background .3s ease,color .3s ease}
+  h1{font-size:26px;color:var(--titulo)} h2{font-size:19px;color:var(--titulo);margin-top:36px}
   h3{font-size:16px;margin-top:24px}
-  .caja{background:#dcf2f0;border-radius:12px;padding:16px 18px;margin:18px 0}
-  li{margin:6px 0} hr{border:none;border-top:1px solid #e5e4de;margin:44px 0}
-  .peq{color:#5f5e5a;font-size:14px}
+  .caja{background:var(--caja);border-radius:12px;padding:16px 18px;margin:18px 0}
+  li{margin:6px 0} hr{border:none;border-top:1px solid var(--raya);margin:44px 0}
+  .peq{color:var(--tinta2);font-size:14px}
   .lang{border-top:2px solid #DCF2F0;margin-top:40px;padding-top:8px}
   /* el MISMO conmutador de anda.finance (skin Pagos/Gastos de la app):
      pista píldora y pastilla activa con borde agua (ACE, 6-sep) */
-  .idiomas{position:sticky;top:0;z-index:5;display:flex;justify-content:flex-end;padding:10px 0 6px;background:#fafaf7}
-  .conmuta{display:flex;background:#EDEDE6;border:1px solid #BBBAAB;border-radius:999px;padding:2px}
-  .idiomas button{font:inherit;font-size:12px;font-weight:500;cursor:pointer;color:#8A8983;
+  .idiomas{position:sticky;top:0;z-index:5;display:flex;justify-content:flex-end;align-items:center;padding:10px 0 6px;background:var(--fondo)}
+  .conmuta{display:flex;background:var(--pista);border:1px solid var(--borde);border-radius:999px;padding:2px}
+  .idiomas .conmuta button{font:inherit;font-size:12px;font-weight:500;cursor:pointer;color:var(--suave);
                   background:transparent;border:1px solid transparent;padding:3px 12px;border-radius:999px}
-  .idiomas button[aria-pressed="true"]{background:#fff;border-color:#00C9B8;color:#1A1A17;font-weight:700}
+  .idiomas button[aria-pressed="true"]{background:var(--sup);border-color:var(--agua);color:var(--tinta);font-weight:700}
   .idiomas button:focus-visible{outline:2px solid #12857C;outline-offset:2px}
+  .btnTema{margin-left:6px;background:var(--sup);border:1px solid var(--borde);color:var(--suave);
+           padding:4px 10px;border-radius:99px;cursor:pointer;display:inline-flex;align-items:center;justify-content:center}
+  .btnTema svg{width:15px;height:15px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;display:block}
+  [hidden]{display:none!important}
 </style>
 </head>
 <body>
 
 <div class="idiomas" id="idiomas" hidden>
   <span class="conmuta"><button type="button" data-lang="es">ES</button><button type="button" data-lang="en">EN</button></span>
+  <button type="button" id="btn-tema" class="btnTema" aria-label="Tema: automático, claro u oscuro / Theme: auto, light or dark"><svg id="icoAuto" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 3a9 9 0 0 0 0 18z" fill="currentColor" stroke="none"/></svg><svg id="icoSol" viewBox="0 0 24 24" aria-hidden="true" hidden><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg><svg id="icoLuna" viewBox="0 0 24 24" aria-hidden="true" hidden><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg></button>
 </div>
 
 <div id="doc-es">
@@ -170,6 +180,31 @@ debts</strong> (trash icon). They are removed from our servers immediately.</p>
   window.addEventListener('hashchange', function () {
     elegir((location.hash || '').replace('#', '').toLowerCase(), false);
   });
+})();
+</script>
+
+<script>
+(function () {
+  // TRES estados como la app: Automático → Claro → Oscuro (ACE, 6-sep).
+  // La llave anda-tema es la misma de la portada: el modo viaja entre páginas.
+  var btn = document.getElementById('btn-tema');
+  if (!btn) return;
+  var medio = matchMedia('(prefers-color-scheme: dark)');
+  var modo = 'auto';
+  try { var g = localStorage.getItem('anda-tema'); if (g === 'claro' || g === 'oscuro' || g === 'auto') modo = g; } catch (e) {}
+  function aplicar() {
+    document.body.classList.toggle('oscuro', modo === 'auto' ? medio.matches : modo === 'oscuro');
+    document.getElementById('icoAuto').toggleAttribute('hidden', modo !== 'auto');
+    document.getElementById('icoSol').toggleAttribute('hidden', modo !== 'claro');
+    document.getElementById('icoLuna').toggleAttribute('hidden', modo !== 'oscuro');
+  }
+  btn.addEventListener('click', function () {
+    modo = modo === 'auto' ? 'claro' : modo === 'claro' ? 'oscuro' : 'auto';
+    try { localStorage.setItem('anda-tema', modo); } catch (e) {}
+    aplicar();
+  });
+  if (medio.addEventListener) medio.addEventListener('change', function () { if (modo === 'auto') aplicar(); });
+  aplicar();
 })();
 </script>
 

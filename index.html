@@ -426,7 +426,7 @@
         <button id="btn-es" class="activo" type="button">ES</button>
         <button id="btn-en" type="button">EN</button>
       </span>
-      <button id="btn-tema" class="btnTema" type="button" aria-label="Tema claro u oscuro / Light or dark theme"><svg id="icoLuna" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg><svg id="icoSol" viewBox="0 0 24 24" aria-hidden="true" hidden><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg></button>
+      <button id="btn-tema" class="btnTema" type="button" aria-label="Tema: automático, claro u oscuro / Theme: auto, light or dark"><svg id="icoAuto" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 3a9 9 0 0 0 0 18z" fill="currentColor" stroke="none"/></svg><svg id="icoSol" viewBox="0 0 24 24" aria-hidden="true" hidden><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg><svg id="icoLuna" viewBox="0 0 24 24" aria-hidden="true" hidden><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg></button>
     </span>
     <a class="navCta fija" href="#simulador"><span data-es>Probar el simulador</span><span data-en>Try the simulator</span></a>
   </div>
@@ -1116,25 +1116,29 @@
   document.getElementById('btn-en').addEventListener('click', function(){ window.idioma('en'); });
 
   /* tema claro/oscuro — la paleta de la app; arranca con el del sistema */
+  /* TRES estados como la app (ACE, 6-sep): Automático → Claro → Oscuro.
+     En automático sigue al sistema EN VIVO; el icono dice el MODO (medio
+     círculo = auto). OJO: los SVG no tienen la propiedad .hidden — se
+     conmuta el ATRIBUTO con toggleAttribute (trampa cazada el 6-sep). */
   var btnTema = document.getElementById('btn-tema');
-  function tema(t){
-    document.body.classList.toggle('oscuro', t === 'oscuro');
-    /* el icono dice EL TEMA PUESTO: luna de noche, sol de día (ACE, 6-sep).
-       OJO: los SVG no tienen la propiedad .hidden (es de HTMLElement) — hay
-       que tocar el ATRIBUTO, si no la luna se queda para siempre (6-sep). */
-    document.getElementById('icoLuna').toggleAttribute('hidden', t !== 'oscuro');
-    document.getElementById('icoSol').toggleAttribute('hidden', t === 'oscuro');
-    try { localStorage.setItem('anda-tema', t); } catch(e) {}
+  var medioOscuro = matchMedia('(prefers-color-scheme: dark)');
+  var modoTema = 'auto';
+  try { var g0 = localStorage.getItem('anda-tema'); if (g0 === 'claro' || g0 === 'oscuro' || g0 === 'auto') modoTema = g0; } catch(e) {}
+  function aplicarTema(){
+    document.body.classList.toggle('oscuro', modoTema === 'auto' ? medioOscuro.matches : modoTema === 'oscuro');
+    document.getElementById('icoAuto').toggleAttribute('hidden', modoTema !== 'auto');
+    document.getElementById('icoSol').toggleAttribute('hidden', modoTema !== 'claro');
+    document.getElementById('icoLuna').toggleAttribute('hidden', modoTema !== 'oscuro');
     if (window.__fondoTema) window.__fondoTema();
     pintaCapturas();
   }
   btnTema.addEventListener('click', function(){
-    tema(document.body.classList.contains('oscuro') ? 'claro' : 'oscuro');
+    modoTema = modoTema === 'auto' ? 'claro' : modoTema === 'claro' ? 'oscuro' : 'auto';
+    try { localStorage.setItem('anda-tema', modoTema); } catch(e) {}
+    aplicarTema();
   });
-  var t0 = null;
-  try { t0 = localStorage.getItem('anda-tema'); } catch(e) {}
-  if (t0 !== 'claro' && t0 !== 'oscuro') t0 = matchMedia('(prefers-color-scheme: dark)').matches ? 'oscuro' : 'claro';
-  tema(t0);
+  if (medioOscuro.addEventListener) medioOscuro.addEventListener('change', function(){ if (modoTema === 'auto') aplicarTema(); });
+  aplicarTema();
 
   /* navbar vidrio */
   var nav = document.getElementById('nav');
