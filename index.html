@@ -1140,8 +1140,10 @@
   function aplicarTema(){
     var osc = modoTema === 'auto' ? medioOscuro.matches : modoTema === 'oscuro';
     document.body.classList.toggle('oscuro', osc);
-    /* también en el html: su fondo tapa el lienzo raíz (la sombra blanca) */
+    /* también en el html: su fondo tapa el lienzo raíz (la sombra blanca);
+       claro-forzado apaga el prefijo CSS de sistema-oscuro si eliges claro */
     document.documentElement.classList.toggle('oscuro', osc);
+    document.documentElement.classList.toggle('claro-forzado', !osc);
     document.getElementById('icoAuto').toggleAttribute('hidden', modoTema !== 'auto');
     document.getElementById('icoSol').toggleAttribute('hidden', modoTema !== 'claro');
     document.getElementById('icoLuna').toggleAttribute('hidden', modoTema !== 'oscuro');
