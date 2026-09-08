@@ -930,12 +930,12 @@
   }
   var arrastre=false, ax=0, ay=0;
   addEventListener('pointerdown', function(e){
-    if (reduce) return;
-    arrastre=true; ax=e.clientX; ay=e.clientY;
-    gota(e.clientX, e.clientY, 16, -0.9);
     /* en el CELL no hay mouse que "pase por encima": la luz va al TOQUE
        (ACE, 8-sep: "la luz no sigue el clic en iPhone") */
     tx = e.clientX / innerWidth; ty = 1 - e.clientY / innerHeight;
+    if (reduce) { mx = tx; my = ty; pinta(28); return; } /* luz sí, animación no */
+    arrastre=true; ax=e.clientX; ay=e.clientY;
+    gota(e.clientX, e.clientY, 16, -0.9);
   }, {passive:true});
   addEventListener('pointermove', function(e){
     if (!arrastre || reduce) return;
@@ -1000,7 +1000,11 @@
 
   /* puntero suavizado (lerp): el halo llega tarde a proposito, como agua */
   var mx=0.5, my=0.62, tx=0.5, ty=0.62;
-  addEventListener('pointermove', function(e){ tx=e.clientX/innerWidth; ty=1-e.clientY/innerHeight; }, {passive:true});
+  addEventListener('pointermove', function(e){
+    tx=e.clientX/innerWidth; ty=1-e.clientY/innerHeight;
+    /* con "reducir movimiento" no hay bucle: la luz se repinta a mano */
+    if (reduce) { mx = tx; my = ty; pinta(28); }
+  }, {passive:true});
   /* al leer, la AURORA se aparta con el scroll (el agua y la luz no) */
   var fade=1;
   addEventListener('scroll', function(){ fade = Math.max(0.35, 1 - scrollY/(innerHeight*1.2)); }, {passive:true});
