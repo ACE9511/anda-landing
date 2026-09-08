@@ -198,7 +198,7 @@ debts</strong> (trash icon). They are removed from our servers immediately.</p>
   if (!btn) return;
   var medio = matchMedia('(prefers-color-scheme: dark)');
   var modo = 'auto';
-  try { var g = localStorage.getItem('anda-tema'); if (g === 'claro' || g === 'oscuro' || g === 'auto') modo = g; } catch (e) {}
+  try { var g = localStorage.getItem('anda-tema2'); if (g === 'claro' || g === 'oscuro' || g === 'auto') modo = g; } catch (e) {}
   function aplicar() {
     document.body.classList.toggle('oscuro', modo === 'auto' ? medio.matches : modo === 'oscuro');
     document.getElementById('icoAuto').toggleAttribute('hidden', modo !== 'auto');
@@ -207,7 +207,7 @@ debts</strong> (trash icon). They are removed from our servers immediately.</p>
   }
   btn.addEventListener('click', function () {
     modo = modo === 'auto' ? 'claro' : modo === 'claro' ? 'oscuro' : 'auto';
-    try { localStorage.setItem('anda-tema', modo); } catch (e) {}
+    try { localStorage.setItem('anda-tema2', modo); } catch (e) {}
     aplicar();
   });
   if (medio.addEventListener) medio.addEventListener('change', function () { if (modo === 'auto') aplicar(); });
