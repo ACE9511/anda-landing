@@ -112,7 +112,11 @@
     padding-top:12px;padding-bottom:12px;
   }
   .logo{font-family:'Inter Tight';font-weight:800;font-size:21px;letter-spacing:-.02em;display:flex;align-items:center;gap:7px}
-  .logo::after{content:'';width:8px;height:8px;border-radius:2px;background:var(--agua)}
+  /* la flechita-ascensor del logo (ACE, 8-sep): abajo al abrir — tocar ANDA
+     te lleva al final; en cuanto scrolleas gira hacia arriba — te devuelve */
+  .logo svg{width:15px;height:15px;stroke:var(--agua);fill:none;stroke-width:2.6;
+    stroke-linecap:round;stroke-linejoin:round;transition:transform .25s ease}
+  .logo.arriba svg{transform:rotate(180deg)}
   .navlinks{display:flex;align-items:center;gap:26px;font-size:14px;font-weight:500;color:var(--tinta2)}
   .navlinks a:hover{color:var(--tinta)}
   .idiomas{display:flex;align-items:center;gap:6px}
@@ -435,7 +439,7 @@
 <canvas id="fondoVivo" aria-hidden="true"></canvas>
 
 <nav id="nav">
-  <a class="logo" href="#">ANDA</a>
+  <a class="logo" href="#" id="logoAnda" aria-label="Ir al final o al inicio / Jump to bottom or top">ANDA<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14"/><path d="m19 12-7 7-7-7"/></svg></a>
   <div class="navlinks">
     <a href="#como" class="oculMov fija"><span data-es>Cómo funciona</span><span data-en>How it works</span></a>
     <a href="#honesta" class="oculMov fija"><span data-es>Honestidad</span><span data-en>Honesty</span></a>
@@ -1202,7 +1206,19 @@
 
   /* navbar vidrio */
   var nav = document.getElementById('nav');
-  addEventListener('scroll', function(){ nav.classList.toggle('vidrio', scrollY > 60); }, {passive:true});
+  var logoAnda = document.getElementById('logoAnda');
+  function estadoBarra(){
+    nav.classList.toggle('vidrio', scrollY > 60);
+    logoAnda.classList.toggle('arriba', scrollY > 60);
+  }
+  addEventListener('scroll', estadoBarra, {passive:true});
+  estadoBarra();
+  /* el ascensor: quieto arriba → al FINAL; ya movido → de vuelta al INICIO */
+  logoAnda.addEventListener('click', function(e){
+    e.preventDefault();
+    if (scrollY > 60) window.scrollTo({ top: 0, behavior: 'smooth' });
+    else window.scrollTo({ top: document.documentElement.scrollHeight, behavior: 'smooth' });
+  });
 
   /* ── el ejemplo (rotulado como ejemplo; centavos SIEMPRE). La deuda TOTAL la
      puede escribir el visitante: las tres tarjetas se escalan en proporción. ── */
