@@ -65,6 +65,21 @@
     -webkit-font-smoothing:antialiased;
   }
   .money{font-variant-numeric:tabular-nums}
+  /* barra de scroll con el fondo TRASLÚCIDO (ACE, 8-sep): la pista deja ver
+     la aurora detrás; el pulgar redondeado con el gris suave del tema */
+  html{scrollbar-color:rgba(138,137,131,.6) rgba(237,237,230,.22)}
+  html.oscuro{scrollbar-color:rgba(132,131,125,.6) rgba(0,0,0,.22)}
+  ::-webkit-scrollbar{width:11px;height:11px}
+  ::-webkit-scrollbar-track{background:rgba(237,237,230,.22)}
+  ::-webkit-scrollbar-thumb{background:rgba(138,137,131,.6);border-radius:8px;
+    border:2px solid transparent;background-clip:padding-box}
+  ::-webkit-scrollbar-thumb:hover{background:rgba(138,137,131,.85);
+    border:2px solid transparent;background-clip:padding-box}
+  html.oscuro::-webkit-scrollbar-track{background:rgba(0,0,0,.22)}
+  html.oscuro::-webkit-scrollbar-thumb{background:rgba(132,131,125,.6);
+    border:2px solid transparent;background-clip:padding-box}
+  html.oscuro::-webkit-scrollbar-thumb:hover{background:rgba(132,131,125,.85);
+    border:2px solid transparent;background-clip:padding-box}
   a{color:inherit;text-decoration:none}
   :focus-visible{outline:2px solid var(--aguaMedio);outline-offset:3px;border-radius:4px}
 
