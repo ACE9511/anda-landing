@@ -717,6 +717,11 @@
   var canvas = document.getElementById('fondoVivo');
   var gl = canvas.getContext('webgl', {antialias:false, alpha:false, depth:false, stencil:false});
   if (!gl) return;
+  /* GPUs de cell que DICEN highp pero calculan con menos precisión pintan la
+     aurora como sopa saturada (foto de ACE, 6-sep — misma familia que la
+     franja negra del sin()): sin fp32 real, mejor fondo plano y limpio. */
+  var pf = gl.getShaderPrecisionFormat && gl.getShaderPrecisionFormat(gl.FRAGMENT_SHADER, gl.HIGH_FLOAT);
+  if (!pf || pf.precision < 23) return;
 
   var VS = 'attribute vec2 p;void main(){gl_Position=vec4(p,0.,1.);}';
 
@@ -956,7 +961,7 @@
     gl.uniform3fv(U.uC2, t.c2); gl.uniform3fv(U.uC3, t.c3);
     gl.uniform1f(U.uFuerza, t.fuerza); gl.uniform1f(U.uHalo, t.halo);
   }
-  window.__fondoTema = pintaTema; /* el boton del tema lo llama al cambiar */
+  window.__fondoTema = function(){ pintaTema(); temaPintado = document.body.classList.contains('oscuro'); if (reduce) pinta(28); };
 
   /* MEDIA RESOLUCIÓN (ACE, 5-sep: el scroll se trababa): la aurora es un
      degradado suave — con ~la mitad de píxeles se ve igual y cuesta 3-4×
@@ -997,7 +1002,10 @@
   }
   var tUltAgua = -1; /* la sim va a max ~60 pasos/s: a 120Hz corria al doble (cell de ACE) */
   document.addEventListener('visibilitychange', function(){ vivo = !document.hidden; if (vivo && !reduce) requestAnimationFrame(paso); });
+  var temaPintado = null;
   function pinta(t){
+    var osc = document.body.classList.contains('oscuro');
+    if (osc !== temaPintado) { temaPintado = osc; pintaTema(); }
     if (aguaViva && t - tUltAgua >= 0.007) { pasoAgua(); tUltAgua = t; }
     mx += (tx-mx)*0.045; my += (ty-my)*0.045;
     gl.useProgram(prog);
