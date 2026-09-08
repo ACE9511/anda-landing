@@ -371,7 +371,7 @@
   /* el VISOR: clic en una captura = al centro, grande, fondo desenfocado */
   .visor{position:fixed;inset:0;z-index:120;display:flex;align-items:center;justify-content:center;
     background:rgba(0,0,0,.45);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
-    cursor:zoom-out;padding:24px}
+    cursor:zoom-out;padding:24px;touch-action:none;overscroll-behavior:contain}
   body.oscuro .visor{background:rgba(0,0,0,.62)}
   .visor img{max-height:90vh;max-width:min(92vw,460px);width:auto;border-radius:26px;
     border:1px solid var(--borde);box-shadow:0 40px 120px rgba(0,0,0,.5);
@@ -1089,17 +1089,34 @@
       visorImg.style.animation = 'visorPasa' + (dir > 0 ? 'Der' : 'Izq') + ' .22s ease';
     }
   }
+  var scrollVisor = 0;
   function abreVisor(img){
     var cs = capturasVisibles();
     for (var i = 0; i < cs.length; i++) if (cs[i] === img) visorIdx = i;
     muestraVisor(visorIdx, 0);
     visor.hidden = false;
+    /* candado a prueba de iPhone (ACE, 8-sep: "cuesta salir hacia atrás"):
+       Safari IGNORA overflow:hidden en el body — se FIJA el body en su
+       posición y se devuelve el scroll al cerrar */
+    scrollVisor = window.scrollY || 0;
+    document.body.style.position = 'fixed';
+    document.body.style.top = (-scrollVisor) + 'px';
+    document.body.style.left = '0';
+    document.body.style.right = '0';
     document.body.style.overflow = 'hidden';
   }
   function cierraVisor(){
     visor.hidden = true;
+    document.body.style.position = '';
+    document.body.style.top = '';
+    document.body.style.left = '';
+    document.body.style.right = '';
     document.body.style.overflow = '';
+    try { window.scrollTo({ top: scrollVisor, behavior: 'instant' }); }
+    catch (e) { window.scrollTo(0, scrollVisor); }
   }
+  /* ni un gesto se cuela a la página de atrás mientras el visor está abierto */
+  visor.addEventListener('touchmove', function(e){ e.preventDefault(); }, {passive:false});
   document.addEventListener('click', function(e){
     var img = e.target.closest ? e.target.closest('#app img[data-es-osc]') : null;
     if (img) { abreVisor(img); return; }
@@ -1116,8 +1133,10 @@
     if (tocX === null) return;
     var dx = e.changedTouches[0].clientX - tocX, dy = e.changedTouches[0].clientY - tocY;
     tocX = null;
+    /* deslizar hacia ABAJO = la imagen vuelve a su lugar (ACE, 8-sep) */
+    if (dy > 56 && dy > Math.abs(dx) * 1.2) { cierraVisor(); return; }
     if (Math.abs(dx) > 48 && Math.abs(dx) > Math.abs(dy) * 1.5) {
-      visorNoCerrar = Date.now(); /* un deslizamiento jamás cierra, ni en el tope */
+      visorNoCerrar = Date.now(); /* un deslizamiento lateral jamás cierra, ni en el tope */
       muestraVisor(visorIdx + (dx < 0 ? 1 : -1), dx < 0 ? 1 : -1);
     }
   }, {passive:true});
