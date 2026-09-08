@@ -1102,13 +1102,14 @@
   });
 
   /* idioma — el patrón de la casa (los DOS idiomas en el HTML; JS esconde uno) */
-  window.idioma = function(l){
+  window.idioma = function(l, recordar){
     document.documentElement.lang = l;
     document.body.classList.toggle('en', l === 'en');
     document.getElementById('btn-es').classList.toggle('activo', l === 'es');
     document.getElementById('btn-en').classList.toggle('activo', l === 'en');
     pintaCapturas();
-    try { localStorage.setItem('anda-lang', l); } catch(e) {}
+    /* solo el CLIC guarda; la detección inicial no clava nada (6-sep) */
+    if (recordar !== false) { try { localStorage.setItem('anda-lang', l); } catch(e) {} }
     recalcula(); // la fecha y el aviso se re-escriben en el idioma nuevo
   };
   function langActual(){ return document.body.classList.contains('en') ? 'en' : 'es'; }
@@ -1341,7 +1342,12 @@
     });
   });
 
-  try { var g = localStorage.getItem('anda-lang'); if (g === 'en') window.idioma('en'); } catch(e) {}
+  /* idioma compartido entre páginas y con detección, como el tema (ACE,
+     6-sep: "tanto lenguaje como tema"): guardado > navegador > español */
+  var l0 = null;
+  try { l0 = localStorage.getItem('anda-lang'); } catch(e) {}
+  if (l0 !== 'es' && l0 !== 'en') l0 = (navigator.language || 'es').slice(0, 2).toLowerCase() === 'en' ? 'en' : 'es';
+  if (l0 === 'en') window.idioma('en', false);
   recalcula();
 })();
 </script>

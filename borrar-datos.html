@@ -163,15 +163,22 @@ debts</strong> (trash icon). They are removed from our servers immediately.</p>
       bs[i].setAttribute('aria-pressed', String(bs[i].getAttribute('data-lang') === l));
     }
     if (recordar) {
+      try { localStorage.setItem('anda-lang', l); } catch (e) {}
       try { history.replaceState(null, '', '#' + l); } catch (e) { location.hash = l; }
     }
   }
 
   // 1) lo que pida el enlace (#es / #en); 2) el idioma del navegador;
   // 3) español, que es el de la mayoría.
+  // 1) el enlace (#es/#en) manda; 2) lo elegido en cualquier página de la
+  // casa (anda-lang); 3) el idioma del navegador; 4) español.
   var h = (location.hash || '').replace('#', '').toLowerCase();
+  var guardado = null;
+  try { guardado = localStorage.getItem('anda-lang'); } catch (e) {}
   var nav = (navigator.language || 'es').slice(0, 2).toLowerCase();
-  elegir(h === 'es' || h === 'en' ? h : (nav === 'en' ? 'en' : 'es'), false);
+  elegir(h === 'es' || h === 'en' ? h
+         : (guardado === 'es' || guardado === 'en' ? guardado
+         : (nav === 'en' ? 'en' : 'es')), false);
 
   caja.addEventListener('click', function (ev) {
     var b = ev.target.closest('button[data-lang]');
