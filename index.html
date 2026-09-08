@@ -53,6 +53,9 @@
      84px (cómo funciona, precio…) ya aterrizan bien y no se tocan. */
   #simulador,#honesta{scroll-margin-top:84px}
   html{scroll-behavior:smooth;overflow-x:clip;background:var(--fondo)}
+  /* y ANTES de que corra el JS, el lienzo ya sale del tema del sistema:
+     el rebote del sobre-scroll jamás enseña blanco en un cell oscuro */
+  @media (prefers-color-scheme: dark){ html:not(.claro-forzado){background:#000} }
   html.oscuro{background:#000}
   body{
     background:var(--fondo); color:var(--tinta);
