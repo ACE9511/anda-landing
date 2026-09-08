@@ -52,7 +52,8 @@
      scroll-margin les deja el techo libre; las secciones con padding-top de
      84px (cómo funciona, precio…) ya aterrizan bien y no se tocan. */
   #simulador,#honesta{scroll-margin-top:84px}
-  html{scroll-behavior:smooth;overflow-x:clip}
+  html{scroll-behavior:smooth;overflow-x:clip;background:var(--fondo)}
+  html.oscuro{background:#000}
   body{
     background:var(--fondo); color:var(--tinta);
     overflow-x:clip; /* cinturón: nada puede abrir scroll lateral (6-sep) */
@@ -1134,7 +1135,10 @@
   var modoTema = 'auto';
   try { var g0 = localStorage.getItem('anda-tema2'); if (g0 === 'claro' || g0 === 'oscuro' || g0 === 'auto') modoTema = g0; } catch(e) {}
   function aplicarTema(){
-    document.body.classList.toggle('oscuro', modoTema === 'auto' ? medioOscuro.matches : modoTema === 'oscuro');
+    var osc = modoTema === 'auto' ? medioOscuro.matches : modoTema === 'oscuro';
+    document.body.classList.toggle('oscuro', osc);
+    /* también en el html: su fondo tapa el lienzo raíz (la sombra blanca) */
+    document.documentElement.classList.toggle('oscuro', osc);
     document.getElementById('icoAuto').toggleAttribute('hidden', modoTema !== 'auto');
     document.getElementById('icoSol').toggleAttribute('hidden', modoTema !== 'claro');
     document.getElementById('icoLuna').toggleAttribute('hidden', modoTema !== 'oscuro');
