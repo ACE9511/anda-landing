@@ -348,7 +348,11 @@
   body.oscuro .pilar .n{background:var(--sobreAgua)}
   .picon{width:24px;height:24px;stroke:var(--enlaceVivo);fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
   .inicon{width:15px;height:15px;stroke:var(--enlaceVivo);fill:none;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round;vertical-align:-2px;margin-right:2px}
-  .btnTema{display:inline-flex;align-items:center;justify-content:center}
+  .btnTema{display:inline-flex;align-items:center;justify-content:center;gap:6px}
+  /* el botón DICE el modo (ACE, 8-sep): Automático/Claro/Oscuro; los seis
+     textos van apilados y el hueco reserva el más ancho — nada se corre */
+  .temaTxt{display:inline-grid;justify-items:start;font-size:12px;font-weight:700;line-height:1}
+  .tTxt{grid-area:1/1;visibility:hidden;white-space:nowrap}
   .btnTema svg{width:15px;height:15px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;display:block}
   .pilar h2{font-family:'Inter Tight';font-size:17px;margin:10px 0 6px}
   .pilar p{color:var(--tinta2);font-size:14px}
@@ -450,7 +454,7 @@
         <button id="btn-es" class="activo" type="button">ES</button>
         <button id="btn-en" type="button">EN</button>
       </span>
-      <button id="btn-tema" class="btnTema" type="button" aria-label="Tema: automático, claro u oscuro / Theme: auto, light or dark"><svg id="icoAuto" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 3a9 9 0 0 0 0 18z" fill="currentColor" stroke="none"/></svg><svg id="icoSol" viewBox="0 0 24 24" aria-hidden="true" hidden><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg><svg id="icoLuna" viewBox="0 0 24 24" aria-hidden="true" hidden><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg></button>
+      <button id="btn-tema" class="btnTema" type="button" aria-label="Tema: automático, claro u oscuro / Theme: auto, light or dark"><svg id="icoAuto" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 3a9 9 0 0 0 0 18z" fill="currentColor" stroke="none"/></svg><svg id="icoSol" viewBox="0 0 24 24" aria-hidden="true" hidden><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg><svg id="icoLuna" viewBox="0 0 24 24" aria-hidden="true" hidden><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg><span class="temaTxt"><span class="tTxt" data-modo="auto" data-lang="es">Automático</span><span class="tTxt" data-modo="auto" data-lang="en">Auto</span><span class="tTxt" data-modo="claro" data-lang="es">Claro</span><span class="tTxt" data-modo="claro" data-lang="en">Light</span><span class="tTxt" data-modo="oscuro" data-lang="es">Oscuro</span><span class="tTxt" data-modo="oscuro" data-lang="en">Dark</span></span></button>
     </span>
     <a class="navCta fija" href="#simulador"><span data-es>Probar el simulador</span><span data-en>Try the simulator</span></a>
   </div>
@@ -1167,6 +1171,7 @@
     document.getElementById('btn-es').classList.toggle('activo', l === 'es');
     document.getElementById('btn-en').classList.toggle('activo', l === 'en');
     pintaCapturas();
+    pintaTemaTxt();
     /* solo el CLIC guarda; la detección inicial no clava nada (6-sep) */
     if (recordar !== false) { try { localStorage.setItem('anda-lang', l); } catch(e) {} }
     recalcula(); // la fecha y el aviso se re-escriben en el idioma nuevo
@@ -1184,6 +1189,12 @@
   var medioOscuro = matchMedia('(prefers-color-scheme: dark)');
   var modoTema = 'auto';
   try { var g0 = localStorage.getItem('anda-tema2'); if (g0 === 'claro' || g0 === 'oscuro' || g0 === 'auto') modoTema = g0; } catch(e) {}
+  function pintaTemaTxt(){
+    var lang = document.body.classList.contains('en') ? 'en' : 'es';
+    var ts = document.querySelectorAll('.tTxt');
+    for (var i = 0; i < ts.length; i++)
+      ts[i].style.visibility = (ts[i].getAttribute('data-modo') === modoTema && ts[i].getAttribute('data-lang') === lang) ? 'visible' : 'hidden';
+  }
   function aplicarTema(){
     var osc = modoTema === 'auto' ? medioOscuro.matches : modoTema === 'oscuro';
     document.body.classList.toggle('oscuro', osc);
@@ -1196,6 +1207,7 @@
     document.getElementById('icoLuna').toggleAttribute('hidden', modoTema !== 'oscuro');
     if (window.__fondoTema) window.__fondoTema();
     pintaCapturas();
+    pintaTemaTxt();
   }
   btnTema.addEventListener('click', function(){
     modoTema = modoTema === 'auto' ? 'claro' : modoTema === 'claro' ? 'oscuro' : 'auto';
