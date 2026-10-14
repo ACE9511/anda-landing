@@ -37,7 +37,7 @@
 
 <div id="doc-en">
 <h1>ANDA — Privacy Policy</h1>
-<p><small>Effective date: August 21, 2026. Last change: October 7, 2026 (connection check: when our servers do not answer, one request to Google to tell "no internet" apart from "ANDA is not responding"). (Sep 8 update: we now keep daily backups for 7 days.) (Aug 21 update: we now name every provider that receives your data — including app updates — the spending category we store, and exactly what "deletion" means) · ANDA is operated by Disode LLC, a Florida limited liability company ("we", "us").</small></p>
+<p><small>Effective date: August 21, 2026. Last change: October 14, 2026 (Apple, if you use ANDA on iPhone; crash reports keep your phone's model, not its name, and how long they last; how we share nonpublic personal information; minors; notices by email; the waitlist). (Oct 7 update: connection check — when our servers do not answer, one request to Google to tell "no internet" apart from "ANDA is not responding".) (Sep 8 update: we now keep daily backups for 7 days.) (Aug 21 update: we now name every provider that receives your data — including app updates — the spending category we store, and exactly what "deletion" means) · ANDA is operated by Disode LLC, a Florida limited liability company ("we", "us").</small></p>
 
 <h2>1. What we collect</h2>
 <ul>
@@ -47,20 +47,21 @@
   <br><b>Be aware of what that category can reveal.</b> Plaid's categories include <i>Medical</i>, <i>Personal care</i>, <i>Travel</i>, <i>Rent and utilities</i>, <i>Entertainment</i> and <i>Income</i>, so your transactions can suggest health, habits, income or where you go. We use them only to tell a payment apart from a purchase, to verify that your payments reached your card, and to show your history. <b>We do not use them for advertising or profiling, and we never sell them.</b></li>
   <li><b>App activity:</b> your plan settings (monthly budget, strategy) and your plan streak.</li>
   <li><b>Notification token:</b> if you enable reminders, we store the push token your phone gives us. It identifies your device, not you.</li>
-  <li><b>Diagnostics:</b> if the app closes unexpectedly, we store the technical details of the error (message and stack trace), your Android/iOS and app versions, the app update identifier and <b>the name your phone reports</b> — note that many phones are named after their owner (for example "Ana's iPhone"), so that name may contain yours. It is linked to your account when you are signed in. We do not include your balances or transactions in these reports.</li>
+  <li><b>Diagnostics:</b> if the app closes unexpectedly, we store the technical details of the error (message and stack trace), your Android/iOS and app versions, the app update identifier and <b>your phone's model</b> (for example "SM-S938B"). Versions of the app from before August 24, 2026 stored the name your phone reports instead, which often contains its owner's name, and a crash on one of those versions (for example, on the first launch of an old installation, before it updates) can still send that name. Crash reports are deleted as described in section 4. It is linked to your account when you are signed in. We do not include your balances or transactions in these reports.</li>
+  <li><b>Waitlist:</b> if you leave your email on anda.finance to hear when ANDA launches, we store that email, the language of the page and the date, apart from any ANDA account, and use it only to tell you about the launch.</li>
 </ul>
 
 <h2>2. How we use it, and who else sees it</h2>
-<p>We use your data only to provide the service: build your personalized payoff plan, show your progress, verify your payments, and send the reminders you enable. <b>We do not sell your data</b> and we do not share it for advertising.</p>
+<p>We use your data only to provide the service: build your personalized payoff plan, show your progress, verify your payments, and send the reminders you enable. <b>We do not sell your data</b> and we do not share it for advertising. We do not disclose nonpublic personal information about our customers or former customers to anyone except as permitted by law — for example, to the providers listed below so they can provide ANDA to you, or when you ask us to.</p>
 <p>These providers process data on our behalf:</p>
 <ul>
   <li><b>Plaid</b> — the bank connection and the card data above.</li>
   <li><b>Supabase</b> — hosting of our database and accounts (servers in the United States).</li>
-  <li><b>Brevo</b> — the transactional emails that carry your sign-in code.</li>
+  <li><b>Brevo</b> — the emails we send you: your sign-in code, and notices about your account or these terms.</li>
   <li><b>Expo</b> — also delivers <b>app updates</b>: your phone asks it whether a new version exists on launch, when you return to the app and every 15 minutes, and that check carries your OS, the installed version and an install identifier. It happens even if you never connect a bank, and on the sign-in screen too.</li>
-  <li><b>Expo and Google (Firebase Cloud Messaging)</b> — delivery of push notifications. <b>The text of the notification passes through them</b>, and that text can name a card, an amount and a merchant (for example: "Visa ···1234: you spent $24.50 · At Corner Store"). You can turn them off in your phone's settings and you will stop seeing them; the notification is still generated and still passes through Expo and Google until you delete your account.</li>
+  <li><b>Expo, and Google (Firebase Cloud Messaging) on Android or Apple (Apple Push Notification service) on iPhone, once notifications are available there</b> — delivery of push notifications. <b>The text of the notification passes through them</b>, and that text can name a card, an amount and a merchant (for example: "Visa ···1234: you spent $24.50 · At Corner Store"). You can turn them off in your phone's settings and you will stop seeing them; the notification is still generated and still passes through Expo and Google or Apple until you delete your account.</li>
   <li><b>RevenueCat</b> — subscription management. It receives your ANDA user identifier and the status of your purchase, never your bank data.</li>
-  <li><b>Google Play</b> — payment processing for the subscription. We never see your card number.</li>
+  <li><b>Google Play or Apple (App Store)</b> — payment processing for the subscription, depending on where you buy it. We never see your card number.</li>
 </ul>
 <p><b>Connection check (Google).</b> When our servers do not answer, the app sends one request to Google (<code>www.google.com/generate_204</code>) to tell "no internet" apart from "ANDA is not responding": once per outage and at most once a minute while it lasts. It carries no account, bank or ANDA data — only what any internet connection reveals: your IP address and the time. Google receives it under <a href="https://policies.google.com/privacy">its own privacy policy</a>, not on our behalf, and we keep nothing from it.</p>
 
@@ -71,14 +72,16 @@
 <h2>4. Data retention and deletion</h2>
 <ul>
   <li><b>While your account exists</b> we keep the data described above so the app can work.</li>
-  <li><b>Crash reports are deleted after 90 days</b>, automatically, even if your account is still active.</li>
+  <li><b>Crash reports are deleted automatically once they are 90 days old</b>, in a weekly purge (so none lasts more than 97 days), even if your account is still active.</li>
   <li><b>When you delete your account</b> (Settings → Delete account) we delete your profile, debts, bank connections, transactions, streak, notification tokens and crash reports from our database, and we revoke ANDA's bank access with Plaid. The deletion is immediate: there is no trash bin and no grace period.</li>
   <li><b>Backups:</b> we keep daily backups of the database for 7 days. When you delete your account, your data disappears from those backups within that window. (Updated September 8, 2026: until August 24, 2026 we kept no backups, and this page said so.)</li>
   <li>Deleting your account in ANDA does not delete the data Plaid holds under its own policy. You can review and revoke your connections at <a href="https://my.plaid.com">my.plaid.com</a>.</li>
+  <li><b>The waitlist email</b> is not part of your account: deleting your account does not delete it. We keep it until you ask us to remove it at <a href="mailto:hola@anda.finance">hola@anda.finance</a>.</li>
 </ul>
 
 <h2>5. Your rights</h2>
 <p>You may access, correct, or delete your personal information at any time from the app, or by contacting us. We respond to verified requests within 30 days.</p>
+<p>ANDA is only for people 18 and older and is not directed to minors. If we learn that an account belongs to someone under 18, we will delete it.</p>
 
 <h2>6. Not financial advice</h2>
 <p>ANDA is a planning tool. It does not provide financial, legal, or tax advice, and it does not move money: you pay your issuer yourself, from your own bank. A payment marked as "verified" means we saw a matching transaction arrive on your card — it is not a confirmation from your issuer. Always confirm important payments with your bank.</p>
@@ -89,7 +92,7 @@
 
 <div id="doc-es">
 <h1>ANDA — Política de Privacidad</h1>
-<p><small>Fecha de vigencia: 21 de agosto de 2026. Último cambio: 7 de octubre de 2026 (comprobación de conexión: cuando nuestros servidores no responden, una petición a Google para distinguir «sin internet» de «ANDA no responde»). (Actualización del 8-sep: ahora se conservan copias diarias durante 7 días.) (Actualización del 21-ago: ahora se nombra a cada proveedor que recibe tus datos — incluidas las actualizaciones de la app —, la categoría de gasto que guardamos y qué significa exactamente "borrar") · ANDA es operada por Disode LLC, una LLC de Florida ("nosotros").</small></p>
+<p><small>Fecha de vigencia: 21 de agosto de 2026. Último cambio: 14 de octubre de 2026 (Apple, si usas ANDA en iPhone; los reportes de cierres guardan el modelo de tu teléfono, no su nombre, y cuánto duran; cómo compartimos información personal no pública; menores; avisos por correo; la lista de espera). (Actualización del 7-oct: comprobación de conexión — cuando nuestros servidores no responden, una petición a Google para distinguir «sin internet» de «ANDA no responde».) (Actualización del 8-sep: ahora se conservan copias diarias durante 7 días.) (Actualización del 21-ago: ahora se nombra a cada proveedor que recibe tus datos — incluidas las actualizaciones de la app —, la categoría de gasto que guardamos y qué significa exactamente "borrar") · ANDA es operada por Disode LLC, una LLC de Florida ("nosotros").</small></p>
 
 <h2>1. Qué recolectamos</h2>
 <ul>
@@ -99,20 +102,21 @@
   <br><b>Que sepas lo que esa categoría puede revelar.</b> Las categorías de Plaid incluyen <i>Médico</i>, <i>Cuidado personal</i>, <i>Viajes</i>, <i>Renta y servicios</i>, <i>Entretenimiento</i> e <i>Ingresos</i>, así que tus movimientos pueden sugerir salud, hábitos, ingresos o por dónde te mueves. Los usamos solo para distinguir un pago de una compra, verificar que tus pagos llegaron a tu tarjeta y mostrarte tu historial. <b>No los usamos para publicidad ni para perfilarte, y nunca los vendemos.</b></li>
   <li><b>Actividad en la app:</b> la configuración de tu plan (presupuesto mensual, estrategia) y tu racha de plan.</li>
   <li><b>Token de notificaciones:</b> si activas los recordatorios, guardamos el token que nos da tu teléfono. Identifica a tu aparato, no a ti.</li>
-  <li><b>Diagnóstico:</b> si la app se cierra sola, guardamos los detalles técnicos del error (mensaje y traza), las versiones de Android/iOS y de la app, el identificador de la actualización y <b>el nombre que reporta tu teléfono</b> — ojo: muchos teléfonos llevan el nombre de su dueño (por ejemplo "iPhone de Ana"), así que ese nombre puede contener el tuyo. Va vinculado a tu cuenta si tienes sesión. En estos reportes no incluimos tus balances ni tus movimientos.</li>
+  <li><b>Diagnóstico:</b> si la app se cierra sola, guardamos los detalles técnicos del error (mensaje y traza), las versiones de Android/iOS y de la app, el identificador de la actualización y <b>el modelo de tu teléfono</b> (por ejemplo "SM-S938B"). Las versiones de la app anteriores al 24 de agosto de 2026 guardaban en su lugar el nombre que reporta tu teléfono, que a menudo lleva el de su dueño, y un cierre en una de esas versiones (por ejemplo, en el primer arranque de una instalación vieja, antes de que se actualice) todavía puede enviarlo. Los reportes de cierres se borran como dice la sección 4. Va vinculado a tu cuenta si tienes sesión. En estos reportes no incluimos tus balances ni tus movimientos.</li>
+  <li><b>Lista de espera:</b> si dejas tu correo en anda.finance para enterarte de cuándo sale ANDA, guardamos ese correo, el idioma de la página y la fecha, aparte de cualquier cuenta de ANDA, y lo usamos solo para avisarte del lanzamiento.</li>
 </ul>
 
 <h2>2. Cómo la usamos, y quién más la ve</h2>
-<p>Usamos tus datos solo para darte el servicio: armar tu plan personalizado, mostrar tu progreso, verificar tus pagos y enviarte los recordatorios que actives. <b>No vendemos tus datos</b> ni los compartimos para publicidad.</p>
+<p>Usamos tus datos solo para darte el servicio: armar tu plan personalizado, mostrar tu progreso, verificar tus pagos y enviarte los recordatorios que actives. <b>No vendemos tus datos</b> ni los compartimos para publicidad. No compartimos información personal no pública de nuestros clientes ni de antiguos clientes con nadie, salvo en lo que permite la ley —por ejemplo, con los proveedores de abajo para que puedan darte ANDA, o cuando tú nos lo pides—.</p>
 <p>Estos proveedores procesan datos por encargo nuestro:</p>
 <ul>
   <li><b>Plaid</b> — la conexión con tu banco y los datos de tarjeta de arriba.</li>
   <li><b>Supabase</b> — alojamiento de nuestra base de datos y de las cuentas (servidores en Estados Unidos).</li>
-  <li><b>Brevo</b> — los correos que llevan tu código de acceso.</li>
+  <li><b>Brevo</b> — los correos que te enviamos: tu código de acceso y los avisos sobre tu cuenta o estos términos.</li>
   <li><b>Expo</b> — también entrega las <b>actualizaciones de la app</b>: tu teléfono le pregunta si hay versión nueva al abrir, al volver al frente y cada 15 minutos, y en esa consulta van tu sistema, la versión instalada y un identificador de la instalación. Ocurre aunque nunca conectes un banco, y también en la pantalla de acceso.</li>
-  <li><b>Expo y Google (Firebase Cloud Messaging)</b> — la entrega de las notificaciones. <b>El texto del aviso pasa por ellos</b>, y ese texto puede nombrar una tarjeta, un monto y un comercio (por ejemplo: "Visa ···1234: gastaste $24.50 · En Tienda del barrio"). Puedes apagarlas en los ajustes de tu teléfono y dejarás de verlas; el aviso se sigue generando y pasando por Expo y Google hasta que borres tu cuenta.</li>
+  <li><b>Expo, y Google (Firebase Cloud Messaging) en Android o Apple (servicio de notificaciones push de Apple) en iPhone, cuando estén disponibles allí</b> — la entrega de las notificaciones. <b>El texto del aviso pasa por ellos</b>, y ese texto puede nombrar una tarjeta, un monto y un comercio (por ejemplo: "Visa ···1234: gastaste $24.50 · En Tienda del barrio"). Puedes apagarlas en los ajustes de tu teléfono y dejarás de verlas; el aviso se sigue generando y pasando por Expo y Google o Apple hasta que borres tu cuenta.</li>
   <li><b>RevenueCat</b> — gestión de la suscripción. Recibe tu identificador de usuario en ANDA y el estado de tu compra, nunca tus datos bancarios.</li>
-  <li><b>Google Play</b> — el cobro de la suscripción. Nosotros nunca vemos el número de tu tarjeta.</li>
+  <li><b>Google Play o Apple (App Store)</b> — el cobro de la suscripción, según dónde la compres. Nosotros nunca vemos el número de tu tarjeta.</li>
 </ul>
 <p><b>Comprobación de conexión (Google).</b> Cuando nuestros servidores no responden, la app hace una petición a Google (<code>www.google.com/generate_204</code>) para distinguir «sin internet» de «ANDA no responde»: una vez por caída y como mucho una vez por minuto mientras dure. No lleva datos de tu cuenta, de tu banco ni de ANDA — solo lo que revela cualquier conexión a internet: tu dirección IP y la hora. Google la recibe bajo <a href="https://policies.google.com/privacy">su propia política de privacidad</a>, no por encargo nuestro, y nosotros no guardamos nada de ella.</p>
 
@@ -123,14 +127,16 @@
 <h2>4. Retención y eliminación de datos</h2>
 <ul>
   <li><b>Mientras tu cuenta exista</b> conservamos los datos de arriba para que la app funcione.</li>
-  <li><b>Los reportes de cierre se borran a los 90 días</b>, automáticamente, aunque tu cuenta siga activa.</li>
+  <li><b>Los reportes de cierre se borran solos al cumplir 90 días</b>, en una limpieza semanal (así que ninguno dura más de 97 días), aunque tu cuenta siga activa.</li>
   <li><b>Cuando borras tu cuenta</b> (Ajustes → Borrar cuenta) eliminamos de nuestra base de datos tu perfil, deudas, conexiones bancarias, movimientos, racha, tokens de notificación y reportes de cierre, y revocamos con Plaid el acceso de ANDA a tu banco. El borrado es inmediato: no hay papelera ni periodo de gracia.</li>
   <li><b>Copias de seguridad:</b> conservamos copias de seguridad diarias de la base de datos durante 7 días. Cuando borras tu cuenta, tus datos desaparecen también de esas copias en ese plazo. (Actualizado el 8 de septiembre de 2026: hasta el 24 de agosto de 2026 no había copias, y esta página lo decía.)</li>
   <li>Borrar tu cuenta en ANDA no borra los datos que Plaid guarda bajo su propia política. Puedes revisar y revocar tus conexiones en <a href="https://my.plaid.com">my.plaid.com</a>.</li>
+  <li><b>El correo de la lista de espera</b> no forma parte de tu cuenta: borrar la cuenta no lo borra. Lo guardamos hasta que nos pidas borrarlo en <a href="mailto:hola@anda.finance">hola@anda.finance</a>.</li>
 </ul>
 
 <h2>5. Tus derechos</h2>
 <p>Puedes acceder, corregir o eliminar tu información personal en cualquier momento desde la app o contactándonos. Respondemos solicitudes verificadas en un máximo de 30 días.</p>
+<p>ANDA es solo para personas de 18 años o más y no está dirigida a menores. Si sabemos que una cuenta es de alguien menor de 18 años, la borraremos.</p>
 
 <h2>6. No es asesoría financiera</h2>
 <p>ANDA es una herramienta de planificación. No brinda asesoría financiera, legal ni fiscal, y no mueve dinero: tú le pagas a tu emisor, desde tu propio banco. Que un pago aparezca como "verificado" significa que vimos llegar un movimiento que coincide en tu tarjeta — no es una confirmación de tu emisor. Confirma siempre los pagos importantes con tu banco.</p>
